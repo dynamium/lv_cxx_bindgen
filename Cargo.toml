@@ -1,0 +1,18 @@
+[package]
+name = "lv_cxx_binding"
+authors = ["ggoraa <ggoraa1029@gmail.com>"]
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1.0.77"
+clap = { version = "4.4.11", features = ["derive"] }
+colog = "1.2.0"
+log = "0.4.20"
+serde = { version = "1.0.193", features = ["derive"] }
+toml = "0.8.8"
+tree-sitter = "0.20.10"
+tree-sitter-cpp = "0.20.3"
+
+[dev-dependencies]
+cc = "*"
