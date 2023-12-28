@@ -1,0 +1,16 @@
+[input]
+cwd = "res/src/lvgl/src"
+files = [
+    "res/src/lvgl/src/lv_init.h",
+    "res/src/lvgl/src/tick/lv_tick.h"
+]
+
+[generation]
+classes = [
+    "obj",
+    "img",
+    "anim"
+]
+namespaces = [
+    "tick"
+]

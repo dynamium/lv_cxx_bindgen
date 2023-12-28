@@ -4,22 +4,37 @@ mod parse;
 
 use anyhow::Result;
 use clap::Parser;
-use log::info;
+use log::{info, trace, LevelFilter};
+use simplelog::{TermLogger, TerminalMode, ColorChoice};
 use std::fs;
 
 use crate::{cli::Cli, conf::Config};
 
 fn main() -> Result<()> {
     let cli = Cli::parse();
-    let config: Config = toml::from_str(fs::read_to_string("conf.toml")?.as_str())?;
+    let config: Config = toml::from_str(fs::read_to_string("lv_cxx_bindgen.toml")?.as_str())?;
 
-    colog::init();
     if !cli.verbose {
-        log::set_max_level(log::LevelFilter::Warn);
+        _ = TermLogger::init(
+            LevelFilter::Info,
+            simplelog::Config::default(),
+            TerminalMode::Mixed,
+            ColorChoice::Auto
+            );
+    } else {
+        _ = TermLogger::init(
+            LevelFilter::Trace,
+            simplelog::Config::default(),
+            TerminalMode::Mixed,
+            ColorChoice::Auto
+            );
     }
     info!("Starting generation...");
+    info!("Input files: {:?}", &config.input.files.clone());
 
-    let headers = parse::headers(&config.input_files.clone());
+    let headers = parse::headers(&config.input.files.clone());
+
+    info!("Parsed functions: {:#?}", headers);
 
     Ok(())
 }
