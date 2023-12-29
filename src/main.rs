@@ -1,14 +1,16 @@
 mod cli;
+mod codegen;
 mod conf;
+mod group;
 mod parse;
 
 use anyhow::Result;
 use clap::Parser;
-use log::{debug, info, LevelFilter};
+use log::{debug, info, warn, LevelFilter};
 use simplelog::{ColorChoice, TermLogger, TerminalMode};
 use std::fs;
 
-use crate::{cli::Cli, conf::Config};
+use crate::{cli::Cli, conf::Config, codegen::ast::{FunctionDeclaration, FunctionCall}, parse::TypedValue};
 
 fn main() -> Result<()> {
     let cli = Cli::parse();
@@ -64,9 +66,32 @@ fn main() -> Result<()> {
     }
 
     info!("Retrieving all functions...");
-    let headers = parse::get_header_functions(&input_files);
+    let functions_orig = parse::get_header_functions(&input_files)?;
 
-    debug!("Parsed functions: {:#?}", headers);
+    debug!("Parsed functions: {:#?}", functions_orig);
+
+    info!("Grouping in namespaces...");
+    let namespaces_list =
+        group::group_in_namespaces(&config.generation.namespaces, &functions_orig);
+
+    warn!("Grouping in classes is not implemented yet!");
+
+    let test = FunctionDeclaration {
+        return_type: "void*",
+        identifier: "my_test_function",
+        args: &[TypedValue {
+            kind: "lv_anim_t".to_string(),
+            identifier: Some("animation".to_string())
+        }],
+        body: &[Box::new(FunctionCall {
+            path: &["lv", "anim"],
+            identifier: "create_cb",
+            args: &["my", "own_args"]
+        })],
+    };
+    info!("{test}");
+    // info!("Grouping in classes...");
+    // let class_list = group::group_in_classes(&config.generation.classes, &functions_orig);
 
     Ok(())
 }

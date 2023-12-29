@@ -9,9 +9,10 @@ pub struct Function {
     pub return_type: String,
     pub identifier: String,
     pub args: Vec<TypedValue>,
+    pub original_ident: Option<String>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct TypedValue {
     pub identifier: Option<String>,
     // type
@@ -112,21 +113,29 @@ fn parse_function_declaration(node: Node, source_str: &str) -> Option<Function> 
                 [parameter_declaration.range().start_byte..parameter_declaration.range().end_byte]
         );
         let parameter_type = parameter_declaration.child(0).unwrap();
-        let mut type_str =
-            source_str[parameter_type.range().start_byte..parameter_type.range().end_byte].to_string();
+        let mut type_str = source_str
+            [parameter_type.range().start_byte..parameter_type.range().end_byte]
+            .to_string();
 
         let mut identifier_str = None;
         if let Some(identifier) = parameter_declaration.named_child(1) {
             let parameter_identifier;
             if identifier.kind() == "pointer_declarator" {
                 debug!("Paremeter type is a pointer");
-                parameter_identifier = parameter_declaration.named_child(1).unwrap().named_child(0).unwrap();
+                parameter_identifier = parameter_declaration
+                    .named_child(1)
+                    .unwrap()
+                    .named_child(0)
+                    .unwrap();
                 type_str.push('*');
             } else {
                 parameter_identifier = parameter_declaration.named_child(1).unwrap();
             }
-            identifier_str =
-                Some(source_str[parameter_identifier.range().start_byte..parameter_identifier.range().end_byte].to_string());
+            identifier_str = Some(
+                source_str[parameter_identifier.range().start_byte
+                    ..parameter_identifier.range().end_byte]
+                    .to_string(),
+            );
             debug!("Identifier exists: {:?}", identifier_str);
         }
 
@@ -146,9 +155,10 @@ fn parse_function_declaration(node: Node, source_str: &str) -> Option<Function> 
         .collect();
 
     Some(Function {
+        return_type: type_str.to_string(),
         identifier: function_name_str.to_string(),
         args: parameters,
-        return_type: type_str.to_string(),
+        original_ident: None,
     })
 }
 

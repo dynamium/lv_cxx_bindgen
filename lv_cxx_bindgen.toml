@@ -4,11 +4,13 @@ files = [ "lvgl.h" ]
 auto_scan = true
 
 [generation]
+root_namespace = "lv"
 classes = [
     "obj",
-    "img",
-    "anim"
+    { ident = "img", inherits = ["obj"] },
+    { ident = "anim", inherits = ["obj"] }
 ]
 namespaces = [
-    "tick"
+    "tick",
+    "mem"
 ]
