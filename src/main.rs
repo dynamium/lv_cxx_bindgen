@@ -32,9 +32,12 @@ fn main() -> Result<()> {
     info!("Starting generation...");
     info!("Input files: {:?}", &config.input.files.clone());
 
-    let headers = parse::headers(&config.input.files.clone());
+    let headers = parse::get_header_functions(&config.input.files.clone());
+    let binding = config.input.files.clone();
+    let paths = parse::get_header_paths(&binding);
 
     info!("Parsed functions: {:#?}", headers);
+    info!("Parsed paths: {:#?}", paths);
 
     Ok(())
 }

@@ -1,6 +1,7 @@
-use std::fs;
 
-use anyhow::Result;
+use std::{path::PathBuf, fs};
+
+use anyhow::{Result, bail};
 use log::debug;
 use tree_sitter::{Node, Parser, Tree};
 
@@ -18,7 +19,7 @@ pub struct TypedValue {
     pub kind: String,
 }
 
-pub fn headers(input: &[String]) -> Result<Vec<Function>> {
+pub fn get_header_functions(input: &[PathBuf]) -> Result<Vec<Function>> {
     let mut parser = Parser::new();
     parser.set_language(tree_sitter_cpp::language())?;
     let mut functions = vec![];
@@ -28,7 +29,7 @@ pub fn headers(input: &[String]) -> Result<Vec<Function>> {
         let tree = parser.parse(&file_str, None).unwrap();
         let root = tree.root_node();
 
-        let function = walk_node(root, &file_str);
+        let function = scan_for_functions(root, &file_str);
 
         functions.push(function);
     }
@@ -36,7 +37,7 @@ pub fn headers(input: &[String]) -> Result<Vec<Function>> {
     return Ok(functions.into_iter().flatten().collect());
 }
 
-fn walk_node(node: Node, source_str: &str) -> Vec<Function> {
+fn scan_for_functions(node: Node, source_str: &str) -> Vec<Function> {
     let mut functions = vec![];
     for i in 0..node.named_child_count() {
         let child = node.named_child(i).unwrap();
@@ -47,7 +48,7 @@ fn walk_node(node: Node, source_str: &str) -> Vec<Function> {
             || child.kind() == "declaration_list"
         {
             debug!("Walking into new node");
-            functions.append(&mut walk_node(child, source_str));
+            functions.append(&mut scan_for_functions(child, source_str));
         }
 
         if child.kind() == "declaration" {
@@ -116,4 +117,58 @@ fn parse_function_declaration(node: Node, source_str: &str) -> Option<Function> 
         args: parameters,
         return_type: type_str.to_string()
     });
+}
+
+pub fn get_header_paths(input: &[PathBuf]) -> Result<Vec<PathBuf>> {
+    let mut parser = Parser::new();
+    parser.set_language(tree_sitter_cpp::language())?;
+    let mut headers = vec![];
+
+    for path in input {
+        let file_str = fs::read_to_string(path)?;
+        let tree = parser.parse(&file_str, None).unwrap();
+        let root = tree.root_node();
+        headers.append(&mut scan_for_header_paths(root, &file_str)?.to_vec());
+    }
+
+    Ok(headers)
+}
+
+fn scan_for_header_paths(node: Node, source_str: &str) -> Result<Vec<PathBuf>> {
+    let mut paths = vec![];
+
+    for i in 0..node.named_child_count() {
+        let child = node.named_child(i).unwrap();
+        debug!("{:?}", child.kind());
+
+        if child.kind() == "preproc_ifdef"
+            || child.kind() == "linkage_specification"
+            || child.kind() == "declaration_list"
+        {
+            debug!("Walking into new node");
+            paths.append(&mut scan_for_header_paths(child, source_str)?.to_vec());
+        }
+
+        if child.kind() == "preproc_include" {
+            debug!("Found preproc_include");
+            let path_node = child.named_child(0).unwrap();
+            debug!("String literal: {}", path_node.to_sexp());
+            match path_node.kind() {
+                "string_literal" => {
+                    let string_content_node = path_node.named_child(0).unwrap();
+                    let node_str = &source_str[string_content_node.range().start_byte..string_content_node.range().end_byte];
+                    debug!("Got string_literal content: {}", node_str);
+                    paths.push(node_str.into());
+                },
+                "system_lib_string" => {
+                    let node_str = &source_str[path_node.range().start_byte..path_node.range().end_byte];
+                    debug!("Got system_lib_string content: {}", node_str);
+                    paths.push(node_str.into());
+                },
+                _ => bail!("Unknown string type for an #include statement encountered. Please report this to developers.")
+            }
+        }
+    }
+
+    Ok(paths)
 }

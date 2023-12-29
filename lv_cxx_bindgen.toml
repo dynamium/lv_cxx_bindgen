@@ -4,6 +4,7 @@ files = [
     "res/src/lvgl/src/lv_init.h",
     "res/src/lvgl/src/tick/lv_tick.h"
 ]
+auto_scan = true
 
 [generation]
 classes = [
