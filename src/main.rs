@@ -4,7 +4,7 @@ mod parse;
 
 use anyhow::Result;
 use clap::Parser;
-use log::{info, trace, LevelFilter};
+use log::{info, LevelFilter};
 use simplelog::{TermLogger, TerminalMode, ColorChoice};
 use std::fs;
 

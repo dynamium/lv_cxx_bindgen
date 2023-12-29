@@ -3,7 +3,7 @@ use std::{path::PathBuf, fs};
 
 use anyhow::{Result, bail};
 use log::debug;
-use tree_sitter::{Node, Parser, Tree};
+use tree_sitter::{Node, Parser};
 
 #[derive(Debug)]
 pub struct Function {
@@ -34,7 +34,7 @@ pub fn get_header_functions(input: &[PathBuf]) -> Result<Vec<Function>> {
         functions.push(function);
     }
 
-    return Ok(functions.into_iter().flatten().collect());
+    Ok(functions.into_iter().flatten().collect())
 }
 
 fn scan_for_functions(node: Node, source_str: &str) -> Vec<Function> {
@@ -58,7 +58,7 @@ fn scan_for_functions(node: Node, source_str: &str) -> Vec<Function> {
             functions.push(function);
         }
     }
-    return functions;
+    functions
 }
 
 fn parse_function_declaration(node: Node, source_str: &str) -> Option<Function> {
@@ -111,12 +111,18 @@ fn parse_function_declaration(node: Node, source_str: &str) -> Option<Function> 
     }
 
     debug!("Parameters: {:?}", parameters);
+    parameters = parameters.into_iter().filter(|param| {
+        if param.identifier == None && param.kind == "void" {
+            return false;
+        }
+        true
+    }).collect();
 
-    return Some(Function {
+    Some(Function {
         identifier: function_name_str.to_string(),
         args: parameters,
         return_type: type_str.to_string()
-    });
+    })
 }
 
 pub fn get_header_paths(input: &[PathBuf]) -> Result<Vec<PathBuf>> {
