@@ -1,7 +1,6 @@
+use std::{fs, path::PathBuf};
 
-use std::{path::PathBuf, fs};
-
-use anyhow::{Result, bail};
+use anyhow::{bail, Result};
 use log::debug;
 use tree_sitter::{Node, Parser};
 
@@ -25,6 +24,7 @@ pub fn get_header_functions(input: &[PathBuf]) -> Result<Vec<Function>> {
     let mut functions = vec![];
 
     for path in input {
+        debug!("Parsing file {:?}", path);
         let file_str = fs::read_to_string(path)?;
         let tree = parser.parse(&file_str, None).unwrap();
         let root = tree.root_node();
@@ -53,9 +53,11 @@ fn scan_for_functions(node: Node, source_str: &str) -> Vec<Function> {
 
         if child.kind() == "declaration" {
             debug!("Found declaration");
-            let function = parse_function_declaration(child, source_str).unwrap();
-            debug!("Parsed function: {:#?}", function);
-            functions.push(function);
+            let function = parse_function_declaration(child, source_str);
+            if let Some(function) = function {
+                debug!("Parsed function: {:#?}", function);
+                functions.push(function);
+            }
         }
     }
     functions
@@ -63,16 +65,35 @@ fn scan_for_functions(node: Node, source_str: &str) -> Vec<Function> {
 
 fn parse_function_declaration(node: Node, source_str: &str) -> Option<Function> {
     let type_range = node.named_child(0)?.range();
-    let type_str = &source_str[type_range.start_byte..type_range.end_byte];
+    let mut type_str = source_str[type_range.start_byte..type_range.end_byte].to_string();
     debug!("Type: {:?}", type_str);
 
-    let declarator_node = node.child_by_field_name("declarator").unwrap();
+    let declarator_node;
+    if node.child_by_field_name("declarator").unwrap().kind() == "pointer_declarator" {
+        debug!("Function type is a pointer");
+        type_str.push('*');
+        declarator_node = node
+            .child_by_field_name("declarator")
+            .unwrap()
+            .named_child(0)
+            .unwrap();
+    } else {
+        declarator_node = node.child_by_field_name("declarator").unwrap();
+    }
+    if declarator_node.kind() != "function_declarator" {
+        debug!(
+            "Encountered declaration is not a function, but rather a {}, skipping",
+            declarator_node.kind()
+        );
+        return None;
+    }
     let function_name_node = declarator_node.child_by_field_name("declarator").unwrap();
     let function_name_str =
         &source_str[function_name_node.range().start_byte..function_name_node.range().end_byte];
     debug!("Function name: {:?}", function_name_str);
 
     let parameters_node = declarator_node.child_by_field_name("parameters").unwrap();
+
     let mut parameters = vec![];
     debug!(
         "Parameters node: {}, {}, {}",
@@ -81,9 +102,9 @@ fn parse_function_declaration(node: Node, source_str: &str) -> Option<Function> 
         parameters_node.child_count()
     );
 
-    for i in 1..parameters_node.child_count() - 1 {
+    for i in 0..parameters_node.named_child_count() {
         debug!("At parameter node {}", i);
-        let parameter_declaration = parameters_node.child(i).unwrap();
+        let parameter_declaration = parameters_node.named_child(i).unwrap();
         debug!(
             "Parameter declaration: {} {}",
             parameter_declaration.to_sexp(),
@@ -111,17 +132,15 @@ fn parse_function_declaration(node: Node, source_str: &str) -> Option<Function> 
     }
 
     debug!("Parameters: {:?}", parameters);
-    parameters = parameters.into_iter().filter(|param| {
-        if param.identifier == None && param.kind == "void" {
-            return false;
-        }
-        true
-    }).collect();
+    parameters = parameters
+        .into_iter()
+        .filter(|param| param.identifier != None && param.kind != "void")
+        .collect();
 
     Some(Function {
         identifier: function_name_str.to_string(),
         args: parameters,
-        return_type: type_str.to_string()
+        return_type: type_str.to_string(),
     })
 }
 

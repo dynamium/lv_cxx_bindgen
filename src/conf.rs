@@ -10,9 +10,9 @@ pub struct Config {
 
 #[derive(Deserialize, Debug)]
 pub struct ConfigInput {
-    pub cwd: PathBuf,
+    pub cwd: Option<PathBuf>,
     pub files: Vec<PathBuf>,
-    pub auto_scan: bool,
+    pub auto_scan: Option<bool>,
 }
 
 #[derive(Deserialize, Debug)]

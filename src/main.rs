@@ -4,8 +4,8 @@ mod parse;
 
 use anyhow::Result;
 use clap::Parser;
-use log::{info, LevelFilter};
-use simplelog::{TermLogger, TerminalMode, ColorChoice};
+use log::{debug, info, LevelFilter};
+use simplelog::{ColorChoice, TermLogger, TerminalMode};
 use std::fs;
 
 use crate::{cli::Cli, conf::Config};
@@ -19,25 +19,54 @@ fn main() -> Result<()> {
             LevelFilter::Info,
             simplelog::Config::default(),
             TerminalMode::Mixed,
-            ColorChoice::Auto
-            );
+            ColorChoice::Auto,
+        );
     } else {
         _ = TermLogger::init(
             LevelFilter::Trace,
             simplelog::Config::default(),
             TerminalMode::Mixed,
-            ColorChoice::Auto
-            );
+            ColorChoice::Auto,
+        );
     }
     info!("Starting generation...");
     info!("Input files: {:?}", &config.input.files.clone());
+    let mut input_files;
+    if config.input.auto_scan.is_some_and(|x| x == true) {
+        info!("Running auto scan...");
+        let mut binding = config.input.files.clone();
+        if let Some(cwd) = &config.input.cwd {
+            binding = binding
+                .into_iter()
+                .map(|path| {
+                    let mut new_path = cwd.clone();
+                    new_path.push(path);
+                    new_path
+                })
+                .collect();
+            debug!("Input files with cwd applied: {:#?}", binding);
+        }
+        input_files = parse::get_header_paths(&binding)?;
+        debug!("Parsed paths: {:#?}", input_files);
+    } else {
+        input_files = config.input.files;
+    }
+    if let Some(cwd) = config.input.cwd {
+        input_files = input_files
+            .into_iter()
+            .map(|path| {
+                let mut new_path = cwd.clone();
+                new_path.push(path);
+                new_path
+            })
+            .collect();
+        debug!("Input files with cwd applied: {:#?}", input_files);
+    }
 
-    let headers = parse::get_header_functions(&config.input.files.clone());
-    let binding = config.input.files.clone();
-    let paths = parse::get_header_paths(&binding);
+    info!("Retrieving all functions...");
+    let headers = parse::get_header_functions(&input_files);
 
-    info!("Parsed functions: {:#?}", headers);
-    info!("Parsed paths: {:#?}", paths);
+    debug!("Parsed functions: {:#?}", headers);
 
     Ok(())
 }
