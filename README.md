@@ -1,4 +1,4 @@
-# lv_cxx_binding
+# lv_cxx_bindgen
 A C++ binding generator for LVGL. Written in Rust (oh the irony)
 
 This generator uses tree-sitter to efficiently construct an AST of all the headers
