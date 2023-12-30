@@ -27,6 +27,8 @@ pub struct ConfigGen {
 pub enum CXXVersion {
     #[serde(rename = "c++11")]
     Cxx11,
+    #[serde(rename = "c++14")]
+    Cxx14,
     #[serde(rename = "c++17")]
     Cxx17,
     #[serde(rename = "c++20")]
