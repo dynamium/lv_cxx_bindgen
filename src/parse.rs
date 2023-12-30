@@ -69,18 +69,17 @@ fn parse_function_declaration(node: Node, source_str: &str) -> Option<Function> 
     let mut type_str = source_str[type_range.start_byte..type_range.end_byte].to_string();
     debug!("Type: {:?}", type_str);
 
-    let declarator_node;
-    if node.child_by_field_name("declarator").unwrap().kind() == "pointer_declarator" {
-        debug!("Function type is a pointer");
-        type_str.push('*');
-        declarator_node = node
-            .child_by_field_name("declarator")
-            .unwrap()
-            .named_child(0)
-            .unwrap();
-    } else {
-        declarator_node = node.child_by_field_name("declarator").unwrap();
-    }
+    let declarator_node =
+        if node.child_by_field_name("declarator").unwrap().kind() == "pointer_declarator" {
+            debug!("Function type is a pointer");
+            type_str.push('*');
+            node.child_by_field_name("declarator")
+                .unwrap()
+                .named_child(0)
+                .unwrap()
+        } else {
+            node.child_by_field_name("declarator").unwrap()
+        };
     if declarator_node.kind() != "function_declarator" {
         debug!(
             "Encountered declaration is not a function, but rather a {}, skipping",
@@ -149,10 +148,7 @@ fn parse_function_declaration(node: Node, source_str: &str) -> Option<Function> 
     }
 
     debug!("Parameters: {:?}", parameters);
-    parameters = parameters
-        .into_iter()
-        .filter(|param| param.identifier != None && param.kind != "void")
-        .collect();
+    parameters.retain(|param| param.identifier.is_some() && param.kind != "void");
 
     Some(Function {
         return_type: type_str.to_string(),

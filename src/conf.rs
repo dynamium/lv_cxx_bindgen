@@ -18,8 +18,19 @@ pub struct ConfigInput {
 #[derive(Deserialize, Debug)]
 pub struct ConfigGen {
     pub root_namespace: String,
+    pub target: CXXVersion,
     pub classes: Vec<ConfigGenClassItem>,
     pub namespaces: Vec<String>,
+}
+
+#[derive(Deserialize, Debug)]
+pub enum CXXVersion {
+    #[serde(rename = "c++11")]
+    Cxx11,
+    #[serde(rename = "c++17")]
+    Cxx17,
+    #[serde(rename = "c++20")]
+    Cxx20
 }
 
 #[derive(Deserialize, Debug)]

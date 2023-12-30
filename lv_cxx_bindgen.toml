@@ -4,6 +4,7 @@ files = [ "lvgl.h" ]
 auto_scan = true
 
 [generation]
+target = "c++20"
 root_namespace = "lv"
 classes = [
     "obj",

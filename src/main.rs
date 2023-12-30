@@ -10,7 +10,7 @@ use log::{debug, info, warn, LevelFilter};
 use simplelog::{ColorChoice, TermLogger, TerminalMode};
 use std::fs;
 
-use crate::{cli::Cli, conf::Config, codegen::ast::{FunctionDeclaration, FunctionCall}, parse::TypedValue};
+use crate::{cli::Cli, conf::Config};
 
 fn main() -> Result<()> {
     let cli = Cli::parse();
@@ -34,7 +34,7 @@ fn main() -> Result<()> {
     info!("Starting generation...");
     info!("Input files: {:?}", &config.input.files.clone());
     let mut input_files;
-    if config.input.auto_scan.is_some_and(|x| x == true) {
+    if config.input.auto_scan.is_some_and(|x| x) {
         info!("Running auto scan...");
         let mut binding = config.input.files.clone();
         if let Some(cwd) = &config.input.cwd {
@@ -73,23 +73,9 @@ fn main() -> Result<()> {
     info!("Grouping in namespaces...");
     let namespaces_list =
         group::group_in_namespaces(&config.generation.namespaces, &functions_orig);
+    debug!("Resulting namespaces: {:#?}", namespaces_list);
 
     warn!("Grouping in classes is not implemented yet!");
-
-    let test = FunctionDeclaration {
-        return_type: "void*",
-        identifier: "my_test_function",
-        args: &[TypedValue {
-            kind: "lv_anim_t".to_string(),
-            identifier: Some("animation".to_string())
-        }],
-        body: &[Box::new(FunctionCall {
-            path: &["lv", "anim"],
-            identifier: "create_cb",
-            args: &["my", "own_args"]
-        })],
-    };
-    info!("{test}");
     // info!("Grouping in classes...");
     // let class_list = group::group_in_classes(&config.generation.classes, &functions_orig);
 
