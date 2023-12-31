@@ -1,5 +1,5 @@
 [input]
-cwd = "res/src/lvgl"
+cwd = "res/lvgl"
 files = [ "lvgl.h" ]
 auto_scan = true
 
