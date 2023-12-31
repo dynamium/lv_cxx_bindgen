@@ -10,27 +10,22 @@ use log::{debug, info, warn, LevelFilter};
 use simplelog::{ColorChoice, TermLogger, TerminalMode};
 use std::fs;
 
-use crate::{cli::Cli, conf::Config, codegen::ast::{self, NamespaceDeclaration, FunctionDeclaration}};
+use crate::{
+    cli::Cli,
+    codegen::ast::{FunctionDeclaration, NamespaceDeclaration, Node},
+    conf::Config,
+};
 
 fn main() -> Result<()> {
     let cli = Cli::parse();
     let config: Config = toml::from_str(fs::read_to_string("lv_cxx_bindgen.toml")?.as_str())?;
 
-    if !cli.verbose {
-        _ = TermLogger::init(
-            LevelFilter::Info,
-            simplelog::Config::default(),
-            TerminalMode::Mixed,
-            ColorChoice::Auto,
-        );
-    } else {
-        _ = TermLogger::init(
-            LevelFilter::Trace,
-            simplelog::Config::default(),
-            TerminalMode::Mixed,
-            ColorChoice::Auto,
-        );
-    }
+    _ = TermLogger::init(
+        cli.verbose.log_level_filter(),
+        simplelog::Config::default(),
+        TerminalMode::Mixed,
+        ColorChoice::Auto,
+    );
     info!("Starting generation...");
     info!("Input files: {:?}", &config.input.files.clone());
     let mut input_files;
