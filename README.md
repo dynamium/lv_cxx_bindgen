@@ -51,7 +51,8 @@ targets and generated output:
     - Functions that accept arrays in arguments have those arguments converted from pointers
     to `std::vector` or `std::array`, depending on configuration
     - Functions that accept function pointers in arguments have those arguments converted
-    to `std::function`
+    to `std::function`, but as an overload, so there are options for `std::function`, and
+    normal function pointers
 - C++14 & C++17 don't have any changes, but it's still a good idea to set the target to your
 C++ version, so that in future updates it will not break
 - C++20
