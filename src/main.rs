@@ -10,7 +10,7 @@ use log::{debug, info, warn, LevelFilter};
 use simplelog::{ColorChoice, TermLogger, TerminalMode};
 use std::fs;
 
-use crate::{cli::Cli, conf::Config};
+use crate::{cli::Cli, conf::Config, codegen::ast::{self, NamespaceDeclaration, FunctionDeclaration}};
 
 fn main() -> Result<()> {
     let cli = Cli::parse();
@@ -78,6 +78,30 @@ fn main() -> Result<()> {
     warn!("Grouping in classes is not implemented yet!");
     // info!("Grouping in classes...");
     // let class_list = group::group_in_classes(&config.generation.classes, &functions_orig);
+
+
+    info!("Converting groups into AST...");
+
+    let mut namespaces_ast = vec![];
+    for namespace in &namespaces_list.0 {
+        let mut members = vec![];
+        for member in &namespace.members {
+            members.push(FunctionDeclaration {
+                return_type: member.return_type.as_str(),
+                identifier: member.identifier.as_str(),
+                args: &member.args,
+                body: &[]
+            });
+        }
+        namespaces_ast.push(NamespaceDeclaration {
+            identifier: &namespace.identifier,
+            members
+        });
+    }
+
+    debug!("Resulting AST: {:#?}", namespaces_ast);
+    debug!("Codegen for first namespace: {}", namespaces_ast[0].gen_source(conf::CXXVersion::Cxx20));
+    // debug!("Generated source code: {}", namespaces_ast[0]);
 
     Ok(())
 }

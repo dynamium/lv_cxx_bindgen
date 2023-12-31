@@ -4,7 +4,7 @@ use anyhow::{bail, Result};
 use log::debug;
 use tree_sitter::{Node, Parser};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Function {
     pub return_type: String,
     pub identifier: String,

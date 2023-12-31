@@ -5,7 +5,7 @@ use crate::{
     parse::{Function, TypedValue},
 };
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Namespace {
     pub identifier: String,
     pub members: Vec<Function>,
