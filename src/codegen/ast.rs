@@ -1,9 +1,9 @@
-use std::fmt::Display;
-use std::fmt::Debug as DebugTrait;
+use crate::{conf::CxxVersion, parse::TypedValue};
+use core::fmt::Debug;
 
-use crate::parse::TypedValue;
-
-pub trait Node: Display + DebugTrait {}
+pub trait Node: Debug {
+    fn gen_source(&self, target: &CxxVersion) -> String;
+}
 
 #[derive(Debug)]
 pub struct FunctionDeclaration<'a> {
@@ -30,5 +30,5 @@ pub struct FunctionCall<'a> {
 #[derive(Debug)]
 pub struct NamespaceDeclaration<'a> {
     pub identifier: &'a str,
-    pub members: Vec<FunctionDeclaration<'a>>
+    pub members: Vec<FunctionDeclaration<'a>>,
 }

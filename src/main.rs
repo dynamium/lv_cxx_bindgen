@@ -27,7 +27,7 @@ fn main() -> Result<()> {
         ColorChoice::Auto,
     );
     info!("Starting generation...");
-    info!("Input files: {:?}", &config.input.files.clone());
+    debug!("Input files: {:?}", &config.input.files.clone());
     let mut input_files;
     if config.input.auto_scan.is_some_and(|x| x) {
         info!("Running auto scan...");
@@ -70,10 +70,8 @@ fn main() -> Result<()> {
         group::group_in_namespaces(&config.generation.namespaces, &functions_orig);
     debug!("Resulting namespaces: {:#?}", namespaces_list);
 
-    warn!("Grouping in classes is not implemented yet!");
-    // info!("Grouping in classes...");
-    // let class_list = group::group_in_classes(&config.generation.classes, &functions_orig);
-
+    info!("Grouping in classes...");
+    let class_list = group::group_in_classes(&config.generation.classes, &functions_orig);
 
     info!("Converting groups into AST...");
 
@@ -85,17 +83,20 @@ fn main() -> Result<()> {
                 return_type: member.return_type.as_str(),
                 identifier: member.identifier.as_str(),
                 args: &member.args,
-                body: &[]
+                body: &[],
             });
         }
         namespaces_ast.push(NamespaceDeclaration {
             identifier: &namespace.identifier,
-            members
+            members,
         });
     }
 
     debug!("Resulting AST: {:#?}", namespaces_ast);
-    debug!("Codegen for first namespace: {}", namespaces_ast[0].gen_source(conf::CXXVersion::Cxx20));
+    debug!(
+        "Codegen for first namespace: {}",
+        namespaces_ast[0].gen_source(&conf::CxxVersion::Cxx20)
+    );
     // debug!("Generated source code: {}", namespaces_ast[0]);
 
     Ok(())

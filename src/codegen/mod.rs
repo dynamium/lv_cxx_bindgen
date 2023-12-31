@@ -1,78 +1,64 @@
 pub mod ast;
 
-use ast::{FunctionCall, FunctionDeclaration, Node};
-use log::{warn, debug};
-use std::fmt::Display;
-
-use crate::{group::Namespace, conf::CXXVersion};
-
 use self::ast::NamespaceDeclaration;
+use crate::conf::CxxVersion;
+use ast::{FunctionCall, FunctionDeclaration, Node};
+use log::error;
 
-// TODO: convert this code to proper code generator functions
-impl Node for FunctionDeclaration<'_> {}
-impl Display for FunctionDeclaration<'_> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{} {}(", self.return_type, self.identifier)?;
-        for arg in self.args {
-            if let Some(ident) = &arg.identifier {
-                write!(f, "{} {},", arg.kind, ident)?;
-            } else {
-                warn!("Function argument doesn't have an identifier, that's a problem'");
-            }
-        }
-        writeln!(f, ") {{")?;
-        for node in self.body {
-            writeln!(f, "{}", node)?;
-        }
-        write!(f, "}}")?;
-
-        Ok(())
-    }
-}
-
-impl Node for FunctionCall<'_> {}
-impl Display for FunctionCall<'_> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        for component in self.path {
-            write!(f, "{component}::")?;
-        }
-        write!(f, "{}(", self.identifier)?;
-        for arg in self.args {
-            write!(f, "{arg}")?;
-        }
-        write!(f, ");")?;
-
-        Ok(())
-    }
-}
-
-impl NamespaceDeclaration<'_> {
-    pub fn gen_source(&self, target: CXXVersion) -> String {
+impl Node for FunctionDeclaration<'_> {
+    fn gen_source(&self, target: &CxxVersion) -> String {
         let mut buf = String::new();
-        buf.push_str(&make_code_block(&format!("namespace {}", self.identifier), || {
-            let mut buf = String::new();
-
-            for func in &self.members {
-                let mut header = String::new();
-                header.push_str(&format!("{} {}(", func.return_type, func.identifier));
-
-                for (i, arg) in func.args.into_iter().enumerate() {
-                    header.push_str(&format!("{} {}", arg.clone().kind, arg.clone().identifier.unwrap()));
-                    if i != func.args.len() - 1 { // fixes trailing comma
-                        header.push(',');
-                    }
-                }
-
-                header.push_str(")");
-
-                buf.push_str(&make_code_block(&header, || {
-                    "".to_string()
-                        // todo!()
-                }))
+        let mut header = String::new();
+        header.push_str(&format!("{} {}", self.return_type, self.identifier));
+        header.push_str(&make_comma_list(self.args, true, |arg| {
+            if let Some(ident) = &arg.identifier {
+                return Some(format!("{} {}", arg.kind, ident));
             }
-
+            error!("Function argument doesn't have an identifier, that's a problem'");
+            None
+        }));
+        buf.push_str(&make_code_block(&header, || {
+            let mut buf = String::new();
+            for node in self.body {
+                buf.push_str(&node.gen_source(target));
+            }
             buf
         }));
+
+        buf
+    }
+}
+
+impl Node for FunctionCall<'_> {
+    fn gen_source(&self, _target: &CxxVersion) -> String {
+        let mut buf = String::new();
+        for component in self.path {
+            buf.push_str(&format!("{component}::"));
+        }
+        buf.push_str(self.identifier);
+        buf.push_str(&make_comma_list(self.args, true, |arg| {
+            Some(arg.to_string())
+        }));
+
+        buf
+    }
+}
+
+impl Node for NamespaceDeclaration<'_> {
+    fn gen_source(&self, target: &CxxVersion) -> String {
+        let mut buf = String::new();
+        buf.push_str(&make_code_block(
+            &format!("namespace {}", self.identifier),
+            || {
+                let mut buf = String::new();
+
+                for func in &self.members {
+                    buf.push_str(&func.gen_source(target));
+                }
+
+                buf
+            },
+        ));
 
         buf
     }
@@ -83,5 +69,29 @@ fn make_code_block<F: Fn() -> String>(header: &str, content: F) -> String {
     buf.push_str(&content());
     buf.push('}');
     buf.push('\n');
-    return buf;
+    buf
+}
+
+fn make_comma_list<T, F: Fn(&T) -> Option<String>>(
+    list: &[T],
+    use_braces: bool,
+    callback: F,
+) -> String {
+    let mut buf = String::new();
+    if use_braces {
+        buf.push('(');
+    }
+    for (i, item) in list.iter().enumerate() {
+        if let Some(item) = callback(item) {
+            buf.push_str(&item);
+        }
+        if i != list.len() - 1 {
+            buf.push(',');
+        }
+    }
+    if use_braces {
+        buf.push(')');
+    }
+
+    buf
 }

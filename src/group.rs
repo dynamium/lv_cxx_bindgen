@@ -1,4 +1,4 @@
-use log::debug;
+use log::{debug, error};
 
 use crate::{
     conf::ConfigGenClassItem,
@@ -47,7 +47,7 @@ pub fn group_in_namespaces<'a>(
         namespaces.push(Namespace {
             identifier: name_temp,
             members: functions_for_namespace,
-        })
+        });
     }
 
     (namespaces, used_functions)
@@ -57,5 +57,6 @@ pub fn group_in_classes<'a>(
     _names: &[ConfigGenClassItem],
     _functions: &'a [Function],
 ) -> (Vec<Class>, &'a [Function]) {
-    todo!();
+    error!("Grouping in classes is not implemented yet!");
+    (vec![], &[])
 }

@@ -18,13 +18,13 @@ pub struct ConfigInput {
 #[derive(Deserialize, Debug)]
 pub struct ConfigGen {
     pub root_namespace: String,
-    pub target: CXXVersion,
+    pub target: CxxVersion,
     pub classes: Vec<ConfigGenClassItem>,
     pub namespaces: Vec<String>,
 }
 
 #[derive(Deserialize, Debug)]
-pub enum CXXVersion {
+pub enum CxxVersion {
     #[serde(rename = "c++11")]
     Cxx11,
     #[serde(rename = "c++14")]
@@ -32,7 +32,7 @@ pub enum CXXVersion {
     #[serde(rename = "c++17")]
     Cxx17,
     #[serde(rename = "c++20")]
-    Cxx20
+    Cxx20,
 }
 
 #[derive(Deserialize, Debug)]

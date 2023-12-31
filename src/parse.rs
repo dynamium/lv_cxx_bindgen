@@ -1,7 +1,7 @@
 use std::{fs, path::PathBuf};
 
 use anyhow::{bail, Result};
-use log::debug;
+use log::{debug, trace};
 use tree_sitter::{Node, Parser};
 
 #[derive(Debug, Clone)]
@@ -42,7 +42,7 @@ fn scan_for_functions(node: Node, source_str: &str) -> Vec<Function> {
     let mut functions = vec![];
     for i in 0..node.named_child_count() {
         let child = node.named_child(i).unwrap();
-        debug!("{:?}", child.kind());
+        trace!("{:?}", child.kind());
 
         if child.kind() == "preproc_ifdef"
             || child.kind() == "linkage_specification"
@@ -67,11 +67,11 @@ fn scan_for_functions(node: Node, source_str: &str) -> Vec<Function> {
 fn parse_function_declaration(node: Node, source_str: &str) -> Option<Function> {
     let type_range = node.named_child(0)?.range();
     let mut type_str = source_str[type_range.start_byte..type_range.end_byte].to_string();
-    debug!("Type: {:?}", type_str);
+    trace!("Type: {:?}", type_str);
 
     let declarator_node =
         if node.child_by_field_name("declarator").unwrap().kind() == "pointer_declarator" {
-            debug!("Function type is a pointer");
+            trace!("Function type is a pointer");
             type_str.push('*');
             node.child_by_field_name("declarator")
                 .unwrap()
@@ -90,7 +90,7 @@ fn parse_function_declaration(node: Node, source_str: &str) -> Option<Function> 
     let function_name_node = declarator_node.child_by_field_name("declarator").unwrap();
     let function_name_str =
         &source_str[function_name_node.range().start_byte..function_name_node.range().end_byte];
-    debug!("Function name: {:?}", function_name_str);
+    trace!("Function name: {:?}", function_name_str);
 
     let parameters_node = declarator_node.child_by_field_name("parameters").unwrap();
 
@@ -103,9 +103,9 @@ fn parse_function_declaration(node: Node, source_str: &str) -> Option<Function> 
     );
 
     for i in 0..parameters_node.named_child_count() {
-        debug!("At parameter node {}", i);
+        trace!("At parameter node {}", i);
         let parameter_declaration = parameters_node.named_child(i).unwrap();
-        debug!(
+        trace!(
             "Parameter declaration: {} {}",
             parameter_declaration.to_sexp(),
             &source_str
@@ -191,17 +191,17 @@ fn scan_for_header_paths(node: Node, source_str: &str) -> Result<Vec<PathBuf>> {
         if child.kind() == "preproc_include" {
             debug!("Found preproc_include");
             let path_node = child.named_child(0).unwrap();
-            debug!("String literal: {}", path_node.to_sexp());
+            trace!("String literal: {}", path_node.to_sexp());
             match path_node.kind() {
                 "string_literal" => {
                     let string_content_node = path_node.named_child(0).unwrap();
                     let node_str = &source_str[string_content_node.range().start_byte..string_content_node.range().end_byte];
-                    debug!("Got string_literal content: {}", node_str);
+                    trace!("Got string_literal content: {}", node_str);
                     paths.push(node_str.into());
                 },
                 "system_lib_string" => {
                     let node_str = &source_str[path_node.range().start_byte..path_node.range().end_byte];
-                    debug!("Got system_lib_string content: {}", node_str);
+                    trace!("Got system_lib_string content: {}", node_str);
                     paths.push(node_str.into());
                 },
                 _ => bail!("Unknown string type for an #include statement encountered. Please report this to developers.")
