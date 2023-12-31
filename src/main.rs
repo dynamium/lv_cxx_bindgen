@@ -4,7 +4,7 @@ mod conf;
 mod group;
 mod parse;
 
-use anyhow::Result;
+use anyhow::{Result, Context};
 use clap::Parser;
 use log::{debug, info, warn, LevelFilter};
 use simplelog::{ColorChoice, TermLogger, TerminalMode};
@@ -18,7 +18,7 @@ use crate::{
 
 fn main() -> Result<()> {
     let cli = Cli::parse();
-    let config: Config = toml::from_str(fs::read_to_string("lv_cxx_bindgen.toml")?.as_str())?;
+    let config: Config = toml::from_str(fs::read_to_string(cli.config).context("Failed to read the config file")?.as_str())?;
 
     _ = TermLogger::init(
         cli.verbose.log_level_filter(),
