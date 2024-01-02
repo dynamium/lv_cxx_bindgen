@@ -6,13 +6,13 @@ mod parse;
 
 use anyhow::{Context, Result};
 use clap::Parser;
-use log::{debug, info, warn, LevelFilter};
+use log::{debug, info};
 use simplelog::{ColorChoice, TermLogger, TerminalMode};
 use std::fs;
 
 use crate::{
     cli::Cli,
-    codegen::ast::{Comment, FunctionDeclaration, NamespaceDeclaration, Node, VariableDeclaration},
+    codegen::ast::{FunctionDeclaration, NamespaceDeclaration, Node},
     conf::Config,
 };
 
@@ -99,10 +99,9 @@ fn main() -> Result<()> {
     }
 
     debug!("Resulting AST: {:#?}", namespaces_ast);
-    debug!(
-        "Codegen for first namespace: {}",
-        namespaces_ast[0].gen_source(&conf::CxxVersion::Cxx20)
-    );
+    for namespace in &namespaces_ast {
+        debug!("Source code for namespace {}: {}",namespace.identifier, namespace.gen_source(&config.generation.target));
+    }
     // debug!("Generated source code: {}", namespaces_ast[0]);
 
     Ok(())

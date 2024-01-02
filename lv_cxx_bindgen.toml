@@ -5,7 +5,6 @@ auto_scan = true
 
 [generation]
 target = "c++20"
-root_namespace = "lv"
 classes = [
     "obj",
     { ident = "img", inherits = ["obj"] },
@@ -13,5 +12,6 @@ classes = [
 ]
 namespaces = [
     "tick",
-    "mem"
+    "mem",
+    "event",
 ]

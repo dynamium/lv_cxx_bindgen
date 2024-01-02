@@ -17,7 +17,6 @@ pub struct ConfigInput {
 
 #[derive(Deserialize, Debug)]
 pub struct ConfigGen {
-    pub root_namespace: String,
     pub target: CxxVersion,
     pub classes: Vec<ConfigGenClassItem>,
     pub namespaces: Vec<String>,
