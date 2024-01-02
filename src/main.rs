@@ -4,7 +4,7 @@ mod conf;
 mod group;
 mod parse;
 
-use anyhow::{Result, Context};
+use anyhow::{Context, Result};
 use clap::Parser;
 use log::{debug, info, warn, LevelFilter};
 use simplelog::{ColorChoice, TermLogger, TerminalMode};
@@ -12,13 +12,17 @@ use std::fs;
 
 use crate::{
     cli::Cli,
-    codegen::ast::{FunctionDeclaration, NamespaceDeclaration, Node},
+    codegen::ast::{Comment, FunctionDeclaration, NamespaceDeclaration, Node, VariableDeclaration},
     conf::Config,
 };
 
 fn main() -> Result<()> {
     let cli = Cli::parse();
-    let config: Config = toml::from_str(fs::read_to_string(cli.config).context("Failed to read the config file")?.as_str())?;
+    let config: Config = toml::from_str(
+        fs::read_to_string(cli.config)
+            .context("Failed to read the config file")?
+            .as_str(),
+    )?;
 
     _ = TermLogger::init(
         cli.verbose.log_level_filter(),
@@ -77,15 +81,17 @@ fn main() -> Result<()> {
 
     let mut namespaces_ast = vec![];
     for namespace in &namespaces_list.0 {
-        let mut members = vec![];
+        let mut members: Vec<Box<dyn Node>> = vec![];
         for member in &namespace.members {
-            members.push(FunctionDeclaration {
-                return_type: member.return_type.as_str(),
-                identifier: member.identifier.as_str(),
-                args: &member.args,
-                body: &[],
-            });
+            let member = member.clone();
+            members.push(Box::new(FunctionDeclaration {
+                return_type: member.return_type,
+                identifier: member.identifier,
+                args: member.args,
+                body: vec![],
+            }));
         }
+
         namespaces_ast.push(NamespaceDeclaration {
             identifier: &namespace.identifier,
             members,

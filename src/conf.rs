@@ -47,3 +47,7 @@ pub struct ConfigGenClass {
     pub ident: String,
     pub inherits: Vec<String>,
 }
+
+pub struct ConfigOutput {
+    pub path: PathBuf,
+}

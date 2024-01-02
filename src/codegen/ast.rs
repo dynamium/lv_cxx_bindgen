@@ -6,29 +6,36 @@ pub trait Node: Debug {
 }
 
 #[derive(Debug)]
-pub struct FunctionDeclaration<'a> {
-    pub return_type: &'a str,
-    pub identifier: &'a str,
-    pub args: &'a [TypedValue],
-    pub body: &'a [Box<dyn Node>],
+pub struct FunctionDeclaration {
+    pub return_type: String,
+    pub identifier: String,
+    pub args: Vec<TypedValue>,
+    pub body: Vec<Box<dyn Node>>,
 }
 
 #[derive(Debug)]
-pub struct VariableDeclaration<'a, N: Node> {
-    pub kind: &'a str,
-    pub identifier: &'a str,
-    pub assignment: N,
-}
-
-#[derive(Debug)]
-pub struct FunctionCall<'a> {
-    pub path: &'a [&'a str],
-    pub identifier: &'a str,
-    pub args: &'a [&'a str],
+pub struct FunctionCall {
+    pub path: Vec<String>,
+    pub identifier: String,
+    pub args: Vec<String>,
 }
 
 #[derive(Debug)]
 pub struct NamespaceDeclaration<'a> {
     pub identifier: &'a str,
-    pub members: Vec<FunctionDeclaration<'a>>,
+    pub members: Vec<Box<dyn Node>>,
+}
+
+#[derive(Debug)]
+pub struct VariableDeclaration<'a, N: Node> {
+    pub is_static: bool,
+    pub kind: &'a str,
+    pub identifier: &'a str,
+    pub assignment: Option<N>,
+}
+
+#[derive(Debug)]
+pub struct Comment<'a> {
+    pub content: &'a str,
+    pub multiline: bool,
 }
