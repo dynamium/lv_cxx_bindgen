@@ -65,7 +65,7 @@ impl Node for FunctionCall {
     }
 }
 
-impl Node for NamespaceDeclaration<'_> {
+impl Node for NamespaceDeclaration {
     fn gen_source(&self, target: &CxxVersion) -> String {
         let mut buf = String::new();
         buf.push_str(&make_code_block(
@@ -84,7 +84,7 @@ impl Node for NamespaceDeclaration<'_> {
 }
 
 impl Node for Comment<'_> {
-    fn gen_source(&self, target: &CxxVersion) -> String {
+    fn gen_source(&self, _target: &CxxVersion) -> String {
         let mut buf = String::new();
         if self.multiline {
             buf.push_str("/**\n");

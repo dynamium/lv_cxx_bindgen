@@ -18,11 +18,14 @@ use crate::{
 
 fn main() -> Result<()> {
     let cli = Cli::parse();
-    let config: Config = toml::from_str(
+    let mut config: Config = toml::from_str(
         fs::read_to_string(cli.config)
             .context("Failed to read the config file")?
             .as_str(),
     )?;
+    if let Some(target) = cli.target {
+        config.generation.target = target;
+    }
 
     _ = TermLogger::init(
         cli.verbose.log_level_filter(),
@@ -75,11 +78,11 @@ fn main() -> Result<()> {
     debug!("Resulting namespaces: {:#?}", namespaces_list);
 
     info!("Grouping in classes...");
-    let class_list = group::group_in_classes(&config.generation.classes, &functions_orig);
+    let _class_list = group::group_in_classes(&config.generation.classes, &functions_orig);
 
     info!("Converting groups into AST...");
 
-    let mut namespaces_ast = vec![];
+    let mut namespaces_ast: Vec<Box<dyn Node>> = vec![];
     for namespace in &namespaces_list.0 {
         let mut members: Vec<Box<dyn Node>> = vec![];
         for member in &namespace.members {
@@ -92,16 +95,26 @@ fn main() -> Result<()> {
             }));
         }
 
-        namespaces_ast.push(NamespaceDeclaration {
-            identifier: &namespace.identifier,
+        namespaces_ast.push(Box::new(NamespaceDeclaration {
+            identifier: namespace.identifier.clone(),
             members,
-        });
+        }));
     }
 
     debug!("Resulting AST: {:#?}", namespaces_ast);
-    for namespace in &namespaces_ast {
-        debug!("Source code for namespace {}: {}",namespace.identifier, namespace.gen_source(&config.generation.target));
-    }
+    let namespace_ast = NamespaceDeclaration {
+        identifier: "lvgl".to_string(),
+        members: namespaces_ast
+    };
+    debug!("Codegen: {}", namespace_ast.gen_source(&config.generation.target));
+    // let mut ast = vec![];
+    // for namespace in &namespaces_ast {
+    //     ast.push(namespace.gen_source(&config.generation.target));
+    // }
+    // debug!(
+    //     "Codegen for first namespace: {}",
+    //     namespaces_ast[0].gen_source(&conf::CxxVersion::Cxx20)
+    // );
     // debug!("Generated source code: {}", namespaces_ast[0]);
 
     Ok(())

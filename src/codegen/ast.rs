@@ -21,8 +21,8 @@ pub struct FunctionCall {
 }
 
 #[derive(Debug)]
-pub struct NamespaceDeclaration<'a> {
-    pub identifier: &'a str,
+pub struct NamespaceDeclaration {
+    pub identifier: String,
     pub members: Vec<Box<dyn Node>>,
 }
 

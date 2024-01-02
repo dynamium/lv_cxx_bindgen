@@ -1,5 +1,6 @@
-use std::path::PathBuf;
+use std::{path::PathBuf};
 
+use clap::ValueEnum;
 use serde::Deserialize;
 
 #[derive(Deserialize, Debug)]
@@ -22,15 +23,19 @@ pub struct ConfigGen {
     pub namespaces: Vec<String>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone, ValueEnum)]
 pub enum CxxVersion {
     #[serde(rename = "c++11")]
+    #[clap(name = "c++11")]
     Cxx11,
     #[serde(rename = "c++14")]
+    #[clap(name = "c++14")]
     Cxx14,
     #[serde(rename = "c++17")]
+    #[clap(name = "c++17")]
     Cxx17,
     #[serde(rename = "c++20")]
+    #[clap(name = "c++20")]
     Cxx20,
 }
 
