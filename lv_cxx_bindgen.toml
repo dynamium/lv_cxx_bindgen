@@ -1,7 +1,5 @@
 [input]
-cwd = "res/lvgl"
-files = [ "lvgl.h" ]
-auto_scan = true
+cwd = "res/lvgl/"
 
 [generation]
 target = "c++20"

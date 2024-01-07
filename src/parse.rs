@@ -175,6 +175,7 @@ pub fn get_header_paths(input: &[PathBuf]) -> Result<Vec<PathBuf>> {
 
 fn scan_for_header_paths(node: Node, source_str: &str) -> Result<Vec<PathBuf>> {
     let mut paths = vec![];
+    debug!("Scanning for header paths");
 
     for i in 0..node.named_child_count() {
         let child = node.named_child(i).unwrap();

@@ -23,35 +23,38 @@ looks like this:
 
 ```toml
 [input]
-cwd = "res/src/lvgl"
-files = [ "lvgl.h" ]
-auto_scan = true
+cwd = "thirdparty/lvgl"
 
 [generation]
 target = "c++20"
-root_namespace = "lv"
-classes = [
-    "obj",
-    { ident = "img", inherits = ["obj"] },
-    { ident = "anim", inherits = ["obj"] }
-]
-namespaces = [
-    "tick",
-    "mem"
-]
+class = {
+    exclude = {
+        groups = ["anim"],
+        functions = ["obj_get_disp", "font_set_kerning"]
+    }
+    renames = [
+        ["obj", "Object"]
+    ]
+}
+namespace = {
+    exclude = ["obj"],
+    renames = [
+        ["anim", "animation"]
+    ]
+}
 ```
 
 ### Input
 
-**`cwd`** - current working directory. Used when resolving input file paths.
+- `cwd` - current working directory. Used when resolving input file paths.
 
-**`files`** - input files, which are then parsed for functions. If `auto_scan` is enabled,
+- `files` - input files, which are then parsed for functions. If `auto_scan` is enabled,
 it will also scan the input files for #include directives, and adds those files to the list
 of input files.
 
 ### Generation
 
-**`target`** - target C++ version, by default C++20. All the differences between different
+- `target` - target C++ version, by default C++20. All the differences between different
 targets and generated output:
 
 - C++11
@@ -66,9 +69,12 @@ C++ version, so that in future updates it will not break
     - Now there is no header file in the output, only a `.cppm` file, which is a C++ module,
     that can be imported with `import lvgl;`
 
-**`root_namespace`** - namespace that houses all generated functions, classes etc.
-
 > TODO: document `classes` and `namespaces` when those will be implemented
+
+- `class.exclude` - function groups that are excluded from assigning to a class.
+For example, if you specify `"obj"` in the list, any function that starts with `lv_obj_` will not
+get assigned to any class
+- `class.renames` - 
 
 ## Process
 
