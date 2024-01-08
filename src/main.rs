@@ -3,6 +3,7 @@ mod codegen;
 mod conf;
 mod group;
 mod parse;
+mod api_map;
 
 use anyhow::{Context, Result};
 use clap::Parser;
@@ -74,11 +75,11 @@ fn main() -> Result<()> {
 
     info!("Grouping in namespaces...");
     let namespaces_list =
-        group::group_in_namespaces(&config.generation.namespaces, &functions_orig);
+        group::group_in_namespaces(&config.generation.namespace_exclude, &functions_orig);
     debug!("Resulting namespaces: {:#?}", namespaces_list);
 
     info!("Grouping in classes...");
-    let _class_list = group::group_in_classes(&config.generation.classes, &functions_orig);
+    let _class_list = group::group_in_classes(&config.generation.class_exclude, &functions_orig);
 
     info!("Converting groups into AST...");
 
