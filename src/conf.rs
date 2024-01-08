@@ -1,25 +1,23 @@
-use std::{path::PathBuf};
+use std::path::PathBuf;
 
 use clap::ValueEnum;
 use serde::Deserialize;
 
 #[derive(Deserialize, Debug)]
 pub struct Config {
-    pub input: ConfigInput,
-    pub generation: ConfigGen,
+    pub input: Input,
+    pub generation: Generation,
 }
 
 #[derive(Deserialize, Debug)]
-pub struct ConfigInput {
+pub struct Input {
     pub cwd: Option<PathBuf>,
-    pub files: Vec<PathBuf>,
-    pub auto_scan: Option<bool>,
 }
 
 #[derive(Deserialize, Debug)]
-pub struct ConfigGen {
+pub struct Generation {
     pub target: CxxVersion,
-    pub class_exclude: Vec<ConfigGenClassItem>,
+    pub class_exclude: Vec<GenerationClassItem>,
     pub namespace_exclude: Vec<String>,
 }
 
@@ -37,21 +35,24 @@ pub enum CxxVersion {
     #[serde(rename = "c++20")]
     #[clap(name = "c++20")]
     Cxx20,
+    #[serde(rename = "c++23")]
+    #[clap(name = "c++23")]
+    Cxx23,
 }
 
 #[derive(Deserialize, Debug)]
 #[serde(untagged)]
-pub enum ConfigGenClassItem {
+pub enum GenerationClassItem {
     Simple(String),
-    Full(ConfigGenClass),
+    Full(GenClass),
 }
 
 #[derive(Deserialize, Debug)]
-pub struct ConfigGenClass {
+pub struct GenClass {
     pub ident: String,
     pub inherits: Vec<String>,
 }
 
-pub struct ConfigOutput {
+pub struct Output {
     pub path: PathBuf,
 }
