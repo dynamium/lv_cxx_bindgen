@@ -61,14 +61,16 @@ targets and generated output:
     - Functions that accept function pointers in arguments have those arguments converted
     to `std::function`, but as an overload, so there are options for `std::function`, and
     normal function pointers
-- C++14 & C++17 don't have any changes, but it's still a good idea to set the target to your
+- C++14 doesn't have any changes, but it's still a good idea to set the target to your
 C++ version, so that in future updates it will not break
+- C++17
+    - Instead of `lvgl::optional`, `std::optional` is used as an option type.
 - C++20
     - Now there is no header file in the output, only a `.cppm` file, which is a C++ module,
-    that can be imported with `import lvgl;`
+    that can be imported with `import lvgl;`. And yes, when you use import, you lose access
+    to the C API, but it still can be included via its header file (that is not recommended tho).
 - C++23
-    - Instead of `std::optional` or sometimes `bool` return values that specify that an error
-    happened, `std::expected` is used.
+    - Instead of `lvgl::expected`, `std::expected` is used as a result type.
 
 > TODO: document `classes` and `namespaces` when those will be implemented
 
@@ -126,4 +128,13 @@ depending on context.
 > Note: `std::expected` is used when target is C++23, and `std::optional` with C++17.
 > If the target is lower than required, a substitute type from the `lvgl` namespace
 > is used as a replacement.
+
+### Q: Can I use the normal C API together with C++?
+
+A: **TL;DR: Don't. Please.***
+
+Full answer: Technically, yes, no one is removing that right from you, but that is far from
+recommended, only when you REALLY know what you are doing. This is basically black&white,
+you only use one API, no mixing of C and C++ APIs, no "grays". You're only making it
+harder for yourself by using both at the same time.
 
