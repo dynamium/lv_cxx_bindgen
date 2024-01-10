@@ -1,15 +1,14 @@
+mod api_map;
 mod cli;
 mod codegen;
 mod conf;
 mod group;
-mod parse;
-mod api_map;
 
 use anyhow::{Context, Result};
 use clap::Parser;
 use log::{debug, info};
 use simplelog::{ColorChoice, TermLogger, TerminalMode};
-use std::fs;
+use std::{fs, path::PathBuf};
 
 use crate::{
     cli::Cli,
@@ -35,79 +34,52 @@ fn main() -> Result<()> {
         ColorChoice::Auto,
     );
     info!("Starting generation...");
-    debug!("Input files: {:?}", &config.input.files.clone());
-    let mut input_files;
-    if config.input.auto_scan.is_some_and(|x| x) {
-        info!("Running auto scan...");
-        let mut binding = config.input.files.clone();
-        if let Some(cwd) = &config.input.cwd {
-            binding = binding
-                .into_iter()
-                .map(|path| {
-                    let mut new_path = cwd.clone();
-                    new_path.push(path);
-                    new_path
-                })
-                .collect();
-            debug!("Input files with cwd applied: {:#?}", binding);
-        }
-        input_files = parse::get_header_paths(&binding)?;
-        debug!("Parsed paths: {:#?}", input_files);
-    } else {
-        input_files = config.input.files;
-    }
-    if let Some(cwd) = config.input.cwd {
-        input_files = input_files
-            .into_iter()
-            .map(|path| {
-                let mut new_path = cwd.clone();
-                new_path.push(path);
-                new_path
-            })
-            .collect();
-        debug!("Input files with cwd applied: {:#?}", input_files);
-    }
 
     info!("Retrieving all functions...");
-    let functions_orig = parse::get_header_functions(&input_files)?;
+    let api_map_file_path = config.input.cwd.unwrap_or(PathBuf::new()).join("lvgl.json");
+    let api_map_file_content = fs::read_to_string(api_map_file_path)?;
+    let functions_orig = api_map::parse(&api_map_file_content);
 
     debug!("Parsed functions: {:#?}", functions_orig);
 
-    info!("Grouping in namespaces...");
-    let namespaces_list =
-        group::group_in_namespaces(&config.generation.namespace_exclude, &functions_orig);
-    debug!("Resulting namespaces: {:#?}", namespaces_list);
+    // info!("Grouping in namespaces...");
+    // let namespaces_list =
+    //     group::group_in_namespaces(&config.generation.namespace_exclude, &functions_orig);
+    // debug!("Resulting namespaces: {:#?}", namespaces_list);
 
-    info!("Grouping in classes...");
-    let _class_list = group::group_in_classes(&config.generation.class_exclude, &functions_orig);
+    // info!("Grouping in classes...");
+    // let _class_list = group::group_in_classes(&config.generation.class_exclude, &functions_orig);
 
-    info!("Converting groups into AST...");
+    // info!("Converting groups into AST...");
 
-    let mut namespaces_ast: Vec<Box<dyn Node>> = vec![];
-    for namespace in &namespaces_list.0 {
-        let mut members: Vec<Box<dyn Node>> = vec![];
-        for member in &namespace.members {
-            let member = member.clone();
-            members.push(Box::new(FunctionDeclaration {
-                return_type: member.return_type,
-                identifier: member.identifier,
-                args: member.args,
-                body: vec![],
-            }));
-        }
+    // let mut namespaces_ast: Vec<Box<dyn Node>> = vec![];
+    // for namespace in &namespaces_list.0 {
+    //     let mut members: Vec<Box<dyn Node>> = vec![];
+    //     for member in &namespace.members {
+    //         let member = member.clone();
+    //         members.push(Box::new(FunctionDeclaration {
+    //             return_type: member.return_type,
+    //             identifier: member.identifier,
+    //             args: member.args,
+    //             body: vec![],
+    //         }));
+    //     }
 
-        namespaces_ast.push(Box::new(NamespaceDeclaration {
-            identifier: namespace.identifier.clone(),
-            members,
-        }));
-    }
+    //     namespaces_ast.push(Box::new(NamespaceDeclaration {
+    //         identifier: namespace.identifier.clone(),
+    //         members,
+    //     }));
+    // }
 
-    debug!("Resulting AST: {:#?}", namespaces_ast);
-    let namespace_ast = NamespaceDeclaration {
-        identifier: "lvgl".to_string(),
-        members: namespaces_ast
-    };
-    debug!("Codegen: {}", namespace_ast.gen_source(&config.generation.target));
+    // debug!("Resulting AST: {:#?}", namespaces_ast);
+    // let namespace_ast = NamespaceDeclaration {
+    //     identifier: "lvgl".to_string(),
+    //     members: namespaces_ast,
+    // };
+    // debug!(
+    //     "Codegen: {}",
+    //     namespace_ast.gen_source(&config.generation.target)
+    // );
     // let mut ast = vec![];
     // for namespace in &namespaces_ast {
     //     ast.push(namespace.gen_source(&config.generation.target));

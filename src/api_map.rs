@@ -1,85 +1,76 @@
 use serde::Deserialize;
+use anyhow::Result;
 
-#[derive(Deserialize)]
-pub struct Root {
-    pub enums: Vec<Enum>,
-    pub functions: Vec<Function>,
-    pub structures: Vec<Struct>,
-    pub unions: Vec<Union>
+#[derive(Deserialize, Debug, Clone)]
+pub struct JSONRoot {
+    pub enums: Vec<JSONValue>,
+    pub functions: Vec<JSONValue>,
+    pub structures: Vec<JSONValue>,
+    pub unions: Vec<JSONValue>,
 }
 
-#[derive(Deserialize)]
-pub struct Type {
+#[derive(Deserialize, Debug, Clone)]
+pub struct JSONValue {
     pub name: Option<String>,
     pub json_type: JSONType,
-    pub r#type: Option<Box<Type>>, // wrapped in a Box to fix type recursion
-    pub fields: Vec<StructField>
+    pub r#type: Option<Box<JSONValue>>, // wrapped in a Box to fix type recursion
+    pub fields: Option<Vec<JSONValue>>,
 }
 
-#[derive(Deserialize)]
-#[serde(rename_all = "lowercase")]
+#[derive(Deserialize, Debug, Clone)]
+#[serde(rename_all = "snake_case")]
 pub enum JSONType {
     PrimitiveType,
     StdlibType,
-    LvType,
+    LvglType,
     EnumMember,
     Field,
     Struct,
-    Typedef
+    Typedef,
+    Enum,
+    Function,
+    Pointer,
+    Array,
+    #[serde(rename = "ret_type")]
+    ReturnType,
+    PoifunctionPointerter, // remove this after fix of the parser
+    Variable,
+    Union,
+    #[serde(rename = "forward_decl")]
+    ForwardDeclaration
 }
 
-#[derive(Deserialize)]
-pub struct Enum {
-    pub name: String,
-    pub r#type: Type,
-    pub json_type: JSONType,
-    pub members: String
+pub struct Enum<T> {
+    pub identifier: String,
+    pub members: Vec<(String, T)>
 }
 
-#[derive(Deserialize)]
 pub struct Function {
-    pub name: String,
-    pub args: Vec<FunctionArg>,
-    pub json_type: JSONType,
-    pub r#type: Type,
+    pub identifier: String,
+    pub return_type: String,
+    pub args: Vec<FuncArg>
 }
 
-#[derive(Deserialize)]
-pub struct FunctionArg {
-    pub name: String,
-    pub json_type: JSONType,
-    pub r#type: Type
+pub struct FuncArg {
+    pub identifier: String,
+    pub r#type: String
 }
 
-#[derive(Deserialize)]
 pub struct Struct {
-    pub name: String,
-    pub json_type: JSONType,
-    pub r#type: Type
+    pub identifier: String,
+    pub fields: Vec<StructField>
 }
 
-#[derive(Deserialize)]
 pub struct StructField {
-    pub name: String,
-    pub json_type: JSONType,
-    pub r#type: Type,
-    pub bitsize: u8
+    pub identifier: String,
+    pub r#type: String,
+    pub bitsize: Option<u8>
 }
 
-#[derive(Deserialize)]
-pub struct Union {
-    pub name: String,
-    pub json_type: JSONType,
-    pub r#type: Type
-}
-
-#[derive(Deserialize)]
 pub struct Typedef {
-    pub name: String,
-    pub json_type: JSONType,
-    pub r#type: Type
+    pub identifier: String,
 }
 
-pub fn parse(source_str: &str) -> Root {
-    todo!()
+pub fn parse(source_str: &str) -> Result<JSONRoot> {
+    return Ok(serde_json::from_str(source_str)?);
 }

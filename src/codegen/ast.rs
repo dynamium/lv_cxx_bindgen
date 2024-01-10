@@ -1,4 +1,4 @@
-use crate::{conf::CxxVersion, parse::TypedValue};
+use crate::{conf::CxxVersion, group::Argument};
 use core::fmt::Debug;
 
 pub trait Node: Debug {
@@ -9,7 +9,7 @@ pub trait Node: Debug {
 pub struct FunctionDeclaration {
     pub return_type: String,
     pub identifier: String,
-    pub args: Vec<TypedValue>,
+    pub args: Vec<Argument>,
     pub body: Vec<Box<dyn Node>>,
 }
 
