@@ -52,8 +52,11 @@ of input files.
 
 ### Generation
 
-- `target` - target C++ version, by default C++20. All the differences between different
+- `target` - target C++ version, by default C++23. All the differences between different
 targets and generated output:
+
+> Note: read the list from the start to your desired C++ target to fully understand what
+> code will be generated
 
 - C++11
     - Functions that accept arrays in arguments have those arguments converted from pointers
@@ -61,6 +64,7 @@ targets and generated output:
     - Functions that accept function pointers in arguments have those arguments converted
     to `std::function`, but as an overload, so there are options for `std::function`, and
     normal function pointers
+    - Functions that can error out have `std::pair` as their result type.
 - C++14 doesn't have any changes, but it's still a good idea to set the target to your
 C++ version, so that in future updates it will not break
 - C++17
@@ -70,7 +74,7 @@ C++ version, so that in future updates it will not break
     that can be imported with `import lvgl;`. And yes, when you use import, you lose access
     to the C API, but it still can be included via its header file (that is not recommended tho).
 - C++23
-    - Instead of `lvgl::expected`, `std::expected` is used as a result type.
+    - Instead of `std::pair`, `std::expected` is used as a result type.
 
 > TODO: document `classes` and `namespaces` when those will be implemented
 
@@ -121,13 +125,8 @@ So, a full process can be described like this:
 
 A: No, never. That's the worst idea known to man, especially knowing that
 LVGL is supposed to run on embedded systems. Exceptions introduce a lot of
-overhead, and are generally a pain in the ass. As a replacement, `lvgl::optional`,
-`std::optional`, `bool`, `lvgl::expected`, and `std::expected` types are used,
-depending on context. 
-
-> Note: `std::expected` is used when target is C++23, and `std::optional` with C++17.
-> If the target is lower than required, a substitute type from the `lvgl` namespace
-> is used as a replacement.
+overhead, and are generally a pain in the ass. As a replacement, `std::optional`,
+`std::expected`, and similar types are used, depending on context. 
 
 ### Q: Can I use the normal C API together with C++?
 
@@ -138,3 +137,12 @@ recommended, only when you REALLY know what you are doing. This is basically bla
 you only use one API, no mixing of C and C++ APIs, no "grays". You're only making it
 harder for yourself by using both at the same time.
 
+## Thanks
+
+The implementation of `lvgl::optional` is a modified version of
+[martinmoene/optional-lite](https://github.com/martinmoene/optional-lite). Thanks for this great
+piece of software @martinmoene!
+Modifications to `optional-lite` are removal of support for C++17 and newer, because it's
+gonna be replaced by normal `std::optional` anyway in those versions.
+
+Same goes for `lvgl::expected`
