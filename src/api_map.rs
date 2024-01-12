@@ -1,5 +1,5 @@
-use serde::Deserialize;
 use anyhow::Result;
+use serde::Deserialize;
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct JSONRoot {
@@ -10,7 +10,7 @@ pub struct JSONRoot {
     pub variables: Vec<JSONValue>,
     pub typedefs: Vec<JSONValue>,
     pub forward_decls: Vec<JSONValue>,
-    pub macros: Vec<JSONValue>
+    pub macros: Vec<JSONValue>,
 }
 
 #[derive(Deserialize, Debug, Clone)]
@@ -40,43 +40,39 @@ pub enum JSONType {
     Array,
     #[serde(rename = "ret_type")]
     ReturnType,
-    PoifunctionPointerter, // remove this after fix of the parser
+    PoifunctionPointerter, // FIXME: remove this after fix of the parser
     Variable,
     Union,
     #[serde(rename = "forward_decl")]
     ForwardDeclaration,
-    Macro
+    Macro,
 }
 
 pub struct Enum<T> {
     pub identifier: String,
-    pub members: Vec<(String, T)>
+    pub members: Vec<(String, T)>,
 }
 
 pub struct Function {
     pub identifier: String,
     pub return_type: String,
-    pub args: Vec<FuncArg>
+    pub args: Vec<FuncArg>,
 }
 
 pub struct FuncArg {
     pub identifier: String,
-    pub r#type: String
+    pub r#type: String,
 }
 
 pub struct Struct {
     pub identifier: String,
-    pub fields: Vec<StructField>
+    pub fields: Vec<StructField>,
 }
 
 pub struct StructField {
     pub identifier: String,
     pub r#type: String,
-    pub bitsize: Option<u8>
-}
-
-pub struct Typedef {
-    pub identifier: String,
+    pub bitsize: Option<u8>,
 }
 
 pub fn parse(source_str: &str) -> Result<JSONRoot> {
