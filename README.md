@@ -132,17 +132,29 @@ overhead, and are generally a pain in the ass. As a replacement, `std::optional`
 
 A: **TL;DR: Don't. Please.***
 
-Full answer: Technically, yes, no one is removing that right from you, but that is far from
-recommended, only when you REALLY know what you are doing. This is basically black&white,
-you only use one API, no mixing of C and C++ APIs, no "grays". You're only making it
+Full answer: Technically, yes, no one is stripping that right from you, but that is far from
+recommended, use the C API only when you REALLY know what you are doing. This is basically black&white,
+you should only use one API, no mixing of C and C++ APIs, no "grays". You're only making it
 harder for yourself by using both at the same time.
+
+## Technical
+
+### Templating
+
+If you have looked at this repository longer that 90% of people that go here, you've
+probably noticed that `res/src/lvgl.hpp` has comments that look something like
+`// MARKER: OBJ_CLASS_MEMBERS` comments all over it. And that is just for simple
+templating built-in to `lv_cxx_binding` itself. All the templating engine does
+is it looks for `// MARKER:` inside the source code, and if found, gets the
+ID after the statement, and replaces the comment with what should be in that spot.
+No dark magic or anything, simple search-and-replace :)
 
 ## Thanks
 
-The implementation of `lvgl::optional` is a modified version of
+The implementation of `lvgl::optional` is basically
 [martinmoene/optional-lite](https://github.com/martinmoene/optional-lite). Thanks for this great
 piece of software @martinmoene!
-Modifications to `optional-lite` are removal of support for C++17 and newer, because it's
-gonna be replaced by normal `std::optional` anyway in those versions.
 
-Same goes for `lvgl::expected`
+Same goes for `lvgl::expected`, it is from
+[martinmoene/expected-lite](https://github.com/martinmoene/expected-lite). Fabulous
+piece of software.
