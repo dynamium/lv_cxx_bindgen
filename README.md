@@ -29,9 +29,13 @@ class = {
     exclude = {
         groups = ["anim"],
         functions = ["obj_get_disp", "font_set_kerning"]
-    }
+    },
     renames = [
         ["obj", "Object"]
+    ],
+    inheritances = [
+        ["img", "obj"],
+        ["menu", "obj"]
     ]
 }
 namespace = {
@@ -143,7 +147,7 @@ harder for yourself by using both at the same time.
 
 If you have looked at this repository longer that 90% of people that go here, you've
 probably noticed that `res/src/lvgl.hpp` has comments that look something like
-`// MARKER: OBJ_CLASS_MEMBERS` comments all over it. And that is just for simple
+`// MARKER: OBJ_CLASS_MEMBERS` all over it. And that is just for simple
 templating built-in to `lv_cxx_binding` itself. All the templating engine does
 is it looks for `// MARKER:` inside the source code, and if found, gets the
 ID after the statement, and replaces the comment with what should be in that spot.
