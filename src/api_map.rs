@@ -7,12 +7,19 @@ pub struct JSONRoot {
     pub functions: Vec<JSONValue>,
     pub structures: Vec<JSONValue>,
     pub unions: Vec<JSONValue>,
+    pub variables: Vec<JSONValue>,
+    pub typedefs: Vec<JSONValue>,
+    pub forward_decls: Vec<JSONValue>,
+    pub macros: Vec<JSONValue>
 }
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct JSONValue {
     pub name: Option<String>,
     pub json_type: JSONType,
+    pub docstring: Option<String>,
+    pub quals: Option<Vec<String>>,
+    pub storage: Option<Vec<String>>,
     pub r#type: Option<Box<JSONValue>>, // wrapped in a Box to fix type recursion
     pub fields: Option<Vec<JSONValue>>,
 }
@@ -37,7 +44,8 @@ pub enum JSONType {
     Variable,
     Union,
     #[serde(rename = "forward_decl")]
-    ForwardDeclaration
+    ForwardDeclaration,
+    Macro
 }
 
 pub struct Enum<T> {
