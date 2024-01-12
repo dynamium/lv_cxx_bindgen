@@ -134,7 +134,7 @@ overhead, and are generally a pain in the ass. As a replacement, `std::optional`
 
 ### Q: Can I use the normal C API together with C++?
 
-A: **TL;DR: Don't. Please.***
+A: **TL;DR: Don't. Please.**
 
 Full answer: Technically, yes, no one is stripping that right from you, but that is far from
 recommended, use the C API only when you REALLY know what you are doing. This is basically black&white,
