@@ -1,4 +1,6 @@
-use log::error;
+use log::{debug, error};
+
+use crate::api_map;
 
 #[derive(Debug, Clone)]
 pub struct Namespace {
@@ -34,13 +36,13 @@ pub struct Argument {
 /// * `functions` - A slice of functions, from which the required functions are extracted.
 pub fn make_namespace_group<'a>(
     name: &str,
-    functions: &'a [Function],
+    functions: &[api_map::Function],
     _blacklist: &[String],
-) -> (Vec<Namespace>, Vec<&'a Function>) {
-    let function_start = format!("lv_{}_", name);
+) -> (Vec<Namespace>, Vec<Function>) {
     let _temp = functions
         .iter()
-        .filter(|func| func.identifier.starts_with(&function_start));
+        .filter(|func| func.identifier.starts_with(&format!("lv_{}_", name)));
+    debug!("{_temp:#?}");
     todo!()
 }
 

@@ -1,4 +1,4 @@
-use crate::{conf::CxxVersion, group::Argument};
+use crate::conf::CxxVersion;
 use core::fmt::Debug;
 
 pub trait Node: Debug {
@@ -6,10 +6,16 @@ pub trait Node: Debug {
 }
 
 #[derive(Debug)]
+pub struct TypedIdentifier {
+    pub identifier: String,
+    pub kind: String,
+}
+
+#[derive(Debug)]
 pub struct FunctionDeclaration {
     pub return_type: String,
     pub identifier: String,
-    pub args: Vec<Argument>,
+    pub args: Vec<TypedIdentifier>,
     pub body: Vec<Box<dyn Node>>,
 }
 

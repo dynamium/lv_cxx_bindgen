@@ -31,7 +31,7 @@ impl Node for FunctionDeclaration {
         let mut header = String::new();
         header.push_str(&format!("{} {}", self.return_type, self.identifier));
         header.push_str(&make_comma_list(&self.args, true, |arg| {
-            return Some(format!("{} {}", arg.r#type, arg.identifier));
+            return Some(format!("{} {}", arg.kind, arg.identifier));
         }));
         buf.push_str(&make_code_block(&header, || {
             let mut buf = String::new();

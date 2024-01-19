@@ -2,7 +2,7 @@ mod api_map;
 mod cli;
 mod codegen;
 mod conf;
-mod group;
+mod process;
 mod template;
 
 use anyhow::{Context, Result};
@@ -11,7 +11,7 @@ use log::{debug, info};
 use simplelog::{ColorChoice, TermLogger, TerminalMode};
 use std::{fs, path::PathBuf};
 
-use crate::{cli::Cli, conf::Config};
+use crate::{cli::Cli, conf::Config, process::make_api_map};
 
 fn main() -> Result<()> {
     let cli = Cli::parse();
@@ -35,11 +35,13 @@ fn main() -> Result<()> {
     info!("Retrieving all functions...");
     let api_map_file_path = config.input.cwd.unwrap_or(PathBuf::new()).join("lvgl.json");
     let api_map_file_content = fs::read_to_string(api_map_file_path)?;
-    let functions_orig = api_map::parse(&api_map_file_content);
+    let api_map = api_map::parse(&api_map_file_content)?;
 
-    debug!("Parsed functions: {:#?}", functions_orig);
+    debug!("Parsed API map: {:#?}", api_map);
 
-    // info!("Grouping in namespaces...");
+    info!("Generating C++ API...");
+    let cpp_api_map = make_api_map(api_map);
+    debug!("C++ API: {cpp_api_map:#?}");
     // let namespaces_list =
     //     group::group_in_namespaces(&config.generation.namespace_exclude, &functions_orig);
     // debug!("Resulting namespaces: {:#?}", namespaces_list);
