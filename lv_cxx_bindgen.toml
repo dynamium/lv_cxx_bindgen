@@ -1,17 +1,7 @@
 [input]
-cwd = "res/lvgl"
-files = [ "lvgl.h" ]
-auto_scan = true
+cwd = "res/lvgl/"
 
 [generation]
 target = "c++20"
-classes = [
-    "obj",
-    { ident = "img", inherits = ["obj"] },
-    { ident = "anim", inherits = ["obj"] }
-]
-namespaces = [
-    "tick",
-    "mem",
-    "event",
-]
+class_exclude = []
+namespace_exclude = []

@@ -7,7 +7,6 @@ use self::{
 };
 use crate::conf::CxxVersion;
 use ast::{FunctionCall, FunctionDeclaration, Node};
-use log::error;
 
 impl<N: Node> Node for VariableDeclaration<'_, N> {
     fn gen_source(&self, target: &CxxVersion) -> String {
@@ -32,11 +31,7 @@ impl Node for FunctionDeclaration {
         let mut header = String::new();
         header.push_str(&format!("{} {}", self.return_type, self.identifier));
         header.push_str(&make_comma_list(&self.args, true, |arg| {
-            if let Some(ident) = &arg.identifier {
-                return Some(format!("{} {}", arg.kind, ident));
-            }
-            error!("Function argument doesn't have an identifier, that's a problem'");
-            None
+            return Some(format!("{} {}", arg.kind, arg.identifier));
         }));
         buf.push_str(&make_code_block(&header, || {
             let mut buf = String::new();

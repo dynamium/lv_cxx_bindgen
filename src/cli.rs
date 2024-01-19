@@ -12,5 +12,5 @@ pub struct Cli {
     #[arg(short, long, default_value = "lv_cxx_bindgen.toml")]
     pub config: PathBuf,
     #[arg(short, long, value_enum)]
-    pub target: Option<CxxVersion>
+    pub target: Option<CxxVersion>,
 }
