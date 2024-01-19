@@ -1,5 +1,3 @@
-use anyhow::{bail, Result};
-
 // The simplest templating engine in existence.
 // It only replaces the found marker once, because this templating
 // engine expects only a single marker with one ID to exist in

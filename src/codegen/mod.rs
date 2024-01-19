@@ -7,7 +7,6 @@ use self::{
 };
 use crate::conf::CxxVersion;
 use ast::{FunctionCall, FunctionDeclaration, Node};
-use log::error;
 
 impl<N: Node> Node for VariableDeclaration<'_, N> {
     fn gen_source(&self, target: &CxxVersion) -> String {

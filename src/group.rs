@@ -1,6 +1,4 @@
-use log::{debug, error};
-
-use crate::conf::GenerationClassItem;
+use log::error;
 
 #[derive(Debug, Clone)]
 pub struct Namespace {
@@ -37,10 +35,10 @@ pub struct Argument {
 pub fn make_namespace_group<'a>(
     name: &str,
     functions: &'a [Function],
-    blacklist: &[String],
+    _blacklist: &[String],
 ) -> (Vec<Namespace>, Vec<&'a Function>) {
     let function_start = format!("lv_{}_", name);
-    let temp = functions
+    let _temp = functions
         .iter()
         .filter(|func| func.identifier.starts_with(&function_start));
     todo!()
@@ -55,9 +53,9 @@ pub fn make_namespace_group<'a>(
 /// * `blacklist` - If a function is found in the function list, but present in the blacklist, it
 /// does not get included to the class.
 pub fn make_class_group<'a>(
-    name: &str,
-    functions: &'a [Function],
-    blacklist: &[String],
+    _name: &str,
+    _functions: &'a [Function],
+    _blacklist: &[String],
 ) -> (Vec<Namespace>, Vec<&'a Function>) {
     error!("Grouping in classes is not implemented yet!");
     (vec![], vec![])

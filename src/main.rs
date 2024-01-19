@@ -3,6 +3,7 @@ mod cli;
 mod codegen;
 mod conf;
 mod group;
+mod template;
 
 use anyhow::{Context, Result};
 use clap::Parser;
@@ -10,11 +11,7 @@ use log::{debug, info};
 use simplelog::{ColorChoice, TermLogger, TerminalMode};
 use std::{fs, path::PathBuf};
 
-use crate::{
-    cli::Cli,
-    codegen::ast::{FunctionDeclaration, NamespaceDeclaration, Node},
-    conf::Config,
-};
+use crate::{cli::Cli, conf::Config};
 
 fn main() -> Result<()> {
     let cli = Cli::parse();
