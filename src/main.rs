@@ -11,7 +11,7 @@ use log::{debug, info};
 use simplelog::{ColorChoice, TermLogger, TerminalMode};
 use std::{fs, path::PathBuf};
 
-use crate::{cli::Cli, conf::Config, process::make_api_map};
+use crate::{cli::Cli, conf::Config, process::make_hl_ast};
 
 fn main() -> Result<()> {
     let cli = Cli::parse();
@@ -40,7 +40,7 @@ fn main() -> Result<()> {
     debug!("Parsed API map: {:#?}", api_map);
 
     info!("Generating C++ API...");
-    let cpp_api_map = make_api_map(api_map);
+    let cpp_api_map = make_hl_ast(api_map);
     debug!("C++ API: {cpp_api_map:#?}");
     // let namespaces_list =
     //     group::group_in_namespaces(&config.generation.namespace_exclude, &functions_orig);
