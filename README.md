@@ -72,18 +72,18 @@ C++ version, so that in future updates it will not break
 - C++17
     - Instead of `lvgl::optional`, `std::optional` is used as an option type.
 - C++20
-    - Now there is no header file in the output, only a `.cppm` file, which is a C++ module,
-    that can be imported with `import lvgl;`. And yes, when you use import, you lose access
-    to the C API, but it still can be included via its header file (that is not recommended
-    tho, see FAQ).
+    - Now there is no header file in the output, only a `.cppm` file, which is a C++
+    module, that can be imported with `import lvgl;`. And yes, when you use import,
+    you lose access to the C API, but it still can be included via its header file
+    (that is not recommended tho, see FAQ).
 - C++23
     - Instead of `lvgl::expected`, `std::expected` is used as a result type.
 
 > TODO: document `classes` and `namespaces` when those will be implemented
 
 - `class.exclude` - function groups that are excluded from assigning to a class.
-For example, if you specify `"obj"` in the list, any function that starts with `lv_obj_` will not
-get assigned to any class
+For example, if you specify `"obj"` in the list, any function that starts with
+`lv_obj_` will not get assigned to any class
 - `class.renames` - 
 
 ## Process
@@ -91,36 +91,47 @@ get assigned to any class
 In short, the whole process can be simplified to 3 main steps:
 
 - Parsing
-- Grouping
+- Conversion 
 - Generation
 
-The first step is the simplest one, it just parses a JSON API map file, extracts
-all relevant data, and does some simplification/processing on that data.
+The first step is the simplest one, it just parses a JSON API map file and extracts
+all relevant data.
 
-The second step then groups all items inside that list in, well, groups, for
-example "this group of functions should result in a class", or "this group
-of functions should result in a namespace" etc.
+The second step converts that map file to High-level Abstract Syntax Tree (HL-AST),
+which represents the entire C++ binding in a high-level format. That step is the
+most interesting one, because this one does the fun stuff - converting
+the C API into idiomatic C++ code.
 
-And the best for last, the third step consists of actually converting allat into
-actual C++ code. That shit is done manually, for plain efficiency and also ease
-of understanding what is actually going on. Also, an additional `clang-format`
-run can be named a "three and a half" step, because it's part of codegen, but not
-part of the actual generator.
+And the (not-so) best for last, the third step consists of actually converting allat
+into actual C++ code. That shit is done manually (without any codegen library), for
+plain efficiency and also ease of understanding what is actually going on. Also, an
+additional `clang-format` run can be named a "three and a half" step, because it's
+part of codegen, but not part of the actual generator.
 
 So, a full process can be described like this:
 
 - Extraction
     - Parsing of `lvgl.json` (a.k.a. LVGL API Map)
-    - Function list extraction and simplification (removal of singular void args, etc)
+    - Function list extraction
     - Typedef/struct/enum/etc extraction and combination (combining anonymous struct
     with its associated typedef for example)
-- Function grouping
-    - In namespaces
-    - In classes
-    - Function arguments transformation for more idiomatic C++
+- HL-AST (High-level Abstract Syntax Tree) generation
+    - Function processing/generation
+        - Argument conversion for more idiomatic C++
+        - Argument filtering (removal of singular void args, like `lv_init(void)`)
+    - Struct processing/generation
+        - Replace *char with std::string, function pointers with std::function,
+        and other stuff when applicable (configurable via CLI)
+    - Enum processing/generation
+        - Generate as enum classes
+    - Namespace generation
+        - Group by function/struct/enum namespace (lv_<namespace>)
+    - Class generation
+        - Group by function/struct/enum namespace (lv_<namespace>)
+        - Create constructors from lv_<namespace>_create functions
 - Generation
-    - Conversion of groups into output AST
-    - AST to source code generation
+    - Conversion of HL-AST to LL-AST (Low-level Abstract Syntax Tree)
+    - LL-AST to source code generation
     - clang-format run over generated code
 
 ## FAQ
