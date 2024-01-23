@@ -115,12 +115,6 @@ pub fn parse(source_str: &str) -> Result<APIMap> {
     })
 }
 
-trait JSONProcessor {
-    fn process_enums(&self) -> Vec<Enum>;
-    fn process_functions(&self) -> Vec<Function>;
-    fn process_structs(&self) -> Vec<Struct>;
-}
-
 impl JSONRoot {
     fn process_enums(&self) -> Vec<Enum> {
         self.enums

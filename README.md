@@ -26,7 +26,7 @@ cwd = "thirdparty/lvgl"
 
 [generation]
 target = "c++20"
-class = {
+classes = {
     exclude = {
         groups = ["anim"],
         functions = ["obj_get_disp", "font_set_kerning"]
@@ -39,12 +39,13 @@ class = {
         ["menu", "obj"]
     ]
 }
-namespace = {
+namespaces = {
     exclude = ["obj"],
     renames = [
         ["anim", "animation"]
     ]
 }
+functions = {}
 ```
 
 ### Input
@@ -115,7 +116,7 @@ So, a full process can be described like this:
     - Function list extraction
     - Typedef/struct/enum/etc extraction and combination (combining anonymous struct
     with its associated typedef for example)
-- HL-AST (High-level Abstract Syntax Tree) generation
+- Conversion to C++ a.k.a. HL-AST (High-level Abstract Syntax Tree) generation
     - Function processing/generation
         - Argument conversion for more idiomatic C++
         - Argument filtering (removal of singular void args, like `lv_init(void)`)
@@ -131,8 +132,8 @@ So, a full process can be described like this:
         - Create constructors from lv_<namespace>_create functions
 - Generation
     - Conversion of HL-AST to LL-AST (Low-level Abstract Syntax Tree)
-    - LL-AST to source code generation
-    - clang-format run over generated code
+    - LL-AST to source code conversion 
+    - `clang-format` run over generated code (optional)
 
 ## FAQ
 
