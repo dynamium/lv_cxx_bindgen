@@ -1,8 +1,6 @@
-use crate::api_map::{APIMap, FuncArg};
-use log::debug;
-use std::collections::HashSet;
-
 use self::func::function_processor;
+use crate::{api_map::APIMap, conf, process::namespace::namespace_generator};
+use log::debug;
 
 mod class;
 mod func;
@@ -34,6 +32,10 @@ pub struct Argument {
     pub kind: String,
 }
 
-pub fn make_hl_ast(api_map: APIMap) {
-    let functions = function_processor(&api_map);
+pub fn make_hl_ast(api_map: APIMap, conf: &conf::Generation) {
+    debug!("Generation config: {:#?}", conf);
+    let functions = function_processor(&api_map, &conf.functions);
+    debug!("Functions: {functions:#?}");
+    let namespaces = namespace_generator(&functions, &conf.namespaces);
+    debug!("Namespaces: {namespaces:#?}");
 }
