@@ -3,18 +3,18 @@ use std::path::PathBuf;
 use clap::ValueEnum;
 use serde::Deserialize;
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct Config {
     pub input: Input,
     pub generation: Generation,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct Input {
     pub cwd: Option<PathBuf>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct Generation {
     pub target: CxxVersion, // TODO: Move to CLI options
     pub functions: FunctionsConfig,
@@ -22,7 +22,7 @@ pub struct Generation {
     pub namespaces: NamespacesConfig,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct ClassesConfig {
     #[serde(default)]
     pub exclude: Vec<ExcludeInclude>,
@@ -34,13 +34,13 @@ pub struct ClassesConfig {
     pub inherit: Vec<(String, String)>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct FunctionsConfig {
     #[serde(default)]
     pub exclude: Vec<String>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct NamespacesConfig {
     #[serde(default)]
     pub exclude: Vec<ExcludeInclude>,
@@ -50,7 +50,7 @@ pub struct NamespacesConfig {
     pub rename: Vec<(String, String)>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct ExcludeInclude {
     #[serde(default)]
     pub namespaces: Vec<String>,

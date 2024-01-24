@@ -4,5 +4,7 @@ cwd = "res/lvgl/"
 [generation]
 target = "c++20"
 classes = {}
-namespaces = {}
 functions = { exclude = ["lv_str.*", "lv_mem.*"] }
+
+[generation.namespaces]
+include = [{ namespaces = ["file_explorer", "tiny_ttf"] }]

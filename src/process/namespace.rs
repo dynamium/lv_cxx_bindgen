@@ -4,7 +4,7 @@ use std::collections::HashSet;
 
 use crate::{
     api_map::{self, APIMap},
-    conf::NamespacesConfig,
+    conf::{ExcludeInclude, NamespacesConfig},
 };
 
 use super::{Argument, Function, Namespace};
@@ -14,7 +14,7 @@ pub fn namespace_generator(functions: &[Function], conf: &NamespacesConfig) -> V
         .par_iter()
         .filter(|f| !f.identifier.starts_with("_"))
         .filter(|f| f.identifier.split('_').collect::<Vec<_>>().len() > 2)
-        .map(|f| f.identifier.split('_').collect::<Vec<_>>()[1].to_string())
+        .map(|f| extract_namespace(&f.identifier, &conf.include))
         .collect::<HashSet<_>>() // exists only to make all items unique
         .into_iter()
         .map(|n| {
@@ -22,7 +22,7 @@ pub fn namespace_generator(functions: &[Function], conf: &NamespacesConfig) -> V
                 n.clone(),
                 functions
                     .into_iter()
-                    .filter(|f| f.identifier.split('_').collect::<Vec<_>>()[1] == n)
+                    .filter(|f| extract_namespace(&f.identifier, &conf.include).as_str() == n)
                     .map(|f| Function {
                         identifier: f.identifier.clone().replace(&format!("lv_{n}_"), ""),
                         return_type: f.return_type.clone(),
@@ -45,20 +45,23 @@ pub fn namespace_generator(functions: &[Function], conf: &NamespacesConfig) -> V
     todo!()
 }
 
-/// Returns a namespace group with a provided name and functions.
-///
-/// # Arguments
-///
-/// * `name` - Name of the namespace group.
-/// * `functions` - A slice of functions, from which the required functions are extracted.
-pub fn make_namespace_group<'a>(
-    name: &str,
-    functions: &[api_map::Function],
-    _blacklist: &[String],
-) -> (Vec<Namespace>, Vec<Function>) {
-    let _temp = functions
-        .iter()
-        .filter(|func| func.identifier.starts_with(&format!("lv_{}_", name)));
-    // debug!("{_temp:#?}");
-    todo!()
+fn extract_namespace(func: &str, namespace_include: &[ExcludeInclude]) -> String {
+    let possible_namespace = func.split('_').collect::<Vec<_>>()[1];
+    let mut found_namespace = None;
+    if namespace_include
+        .into_iter()
+        .find(|i| {
+            found_namespace = i
+                .namespaces
+                .clone()
+                .into_iter()
+                .find(|ns| ns.starts_with(possible_namespace));
+            return found_namespace.is_some();
+        })
+        .is_some()
+    {
+        return found_namespace.unwrap();
+    }
+
+    return possible_namespace.to_string();
 }
