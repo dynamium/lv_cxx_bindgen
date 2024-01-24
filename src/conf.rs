@@ -16,7 +16,6 @@ pub struct Input {
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct Generation {
-    pub target: CxxVersion, // TODO: Move to CLI options
     pub functions: FunctionsConfig,
     pub classes: ClassesConfig,
     pub namespaces: NamespacesConfig,

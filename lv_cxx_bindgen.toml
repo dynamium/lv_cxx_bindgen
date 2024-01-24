@@ -2,7 +2,6 @@
 cwd = "res/lvgl/"
 
 [generation]
-target = "c++20"
 classes = {}
 functions = { exclude = ["lv_str.*", "lv_mem.*"] }
 

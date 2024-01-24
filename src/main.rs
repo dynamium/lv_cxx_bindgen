@@ -15,14 +15,11 @@ use crate::{cli::Cli, conf::Config, process::make_hl_ast};
 
 fn main() -> Result<()> {
     let cli = Cli::parse();
-    let mut config: Config = toml::from_str(
+    let config: Config = toml::from_str(
         fs::read_to_string(cli.config)
             .context("Failed to read the config file")?
             .as_str(),
     )?;
-    if let Some(target) = cli.target {
-        config.generation.target = target;
-    }
 
     _ = TermLogger::init(
         cli.verbose.log_level_filter(),
