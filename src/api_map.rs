@@ -68,6 +68,13 @@ pub struct APIMap {
     pub enums: Vec<Enum>,
     pub functions: Vec<Function>,
     pub structs: Vec<Struct>,
+    pub typedefs: Vec<Typedef>,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct Typedef {
+    pub identifier: String,
+    pub r#type: String,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -112,6 +119,7 @@ pub fn parse(source_str: &str) -> Result<APIMap> {
         enums: json.process_enums(),
         functions: json.process_functions(),
         structs: json.process_structs(),
+        typedefs: json.process_typedefs(),
     })
 }
 
@@ -188,6 +196,19 @@ impl JSONRoot {
                         bitsize: field.bitsize.map(|x| x.parse().unwrap()),
                     })
                     .collect(),
+            })
+            .collect()
+    }
+
+    fn process_typedefs(&self) -> Vec<Typedef> {
+        self.typedefs
+            .clone()
+            .into_iter()
+            .map(|typedef| {
+                Typedef {
+                    identifier: typedef.name.unwrap(),
+                    r#type: typedef.r#type.unwrap().parse_as_type(),
+                }
             })
             .collect()
     }
