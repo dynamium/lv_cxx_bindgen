@@ -74,7 +74,7 @@ pub struct APIMap {
 #[derive(Debug, Clone, PartialEq)]
 pub struct Typedef {
     pub identifier: String,
-    pub r#type: String,
+    pub kind: String,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -205,10 +205,14 @@ impl JSONRoot {
             .clone()
             .into_iter()
             .map(|typedef| {
-                Typedef {
-                    identifier: typedef.name.unwrap(),
-                    r#type: typedef.r#type.unwrap().parse_as_type(),
-                }
+                let t = Typedef {
+                    identifier: typedef.name.clone().unwrap(),
+                    kind: typedef.parse_as_type(),
+                };
+
+                println!("{} -> {}", typedef.parse_as_type(), typedef.name.clone().unwrap());
+            
+                t
             })
             .collect()
     }
