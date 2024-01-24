@@ -1,12 +1,11 @@
 use super::Argument;
 use super::Function;
-use crate::api_map::{self, APIMap, FuncArg};
+use crate::api_map::{APIMap, FuncArg};
 use crate::conf::FunctionsConfig;
+use log::debug;
 use log::trace;
-use log::{debug, error};
 use rayon::prelude::*;
 use regex::Regex;
-use std::collections::HashSet;
 
 /// Processes functions into a vector with groups of those functions, organised
 /// by function namespace (lv_<namespace>_<function_name>)
