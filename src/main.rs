@@ -7,7 +7,7 @@ mod template;
 
 use anyhow::{Context, Result};
 use clap::Parser;
-use log::{debug, info};
+use log::{debug, error, info};
 use simplelog::{ColorChoice, TermLogger, TerminalMode};
 use std::{fs, path::PathBuf};
 
@@ -31,7 +31,13 @@ fn main() -> Result<()> {
 
     info!("Retrieving all functions...");
     let api_map_file_path = config.input.cwd.unwrap_or(PathBuf::new()).join("lvgl.json");
-    let api_map_file_content = fs::read_to_string(api_map_file_path)?;
+    let api_map_file_content = match fs::read_to_string(api_map_file_path.clone()) {
+        Ok(content) => content,
+        Err(error) => {
+            error!("Failed to read the API map file (lvgl.json) at {} : {}", api_map_file_path.display(), error);
+            return Err(error.into());
+        }
+    };
     let api_map = api_map::parse(&api_map_file_content)?;
 
     // debug!("Parsed API map: {:#?}", api_map);
