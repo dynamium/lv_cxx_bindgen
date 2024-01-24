@@ -1,10 +1,10 @@
-use self::func::function_processor;
-use crate::{api_map::APIMap, conf, process::namespace::namespace_generator};
+use crate::{api_map::APIMap, conf};
 use log::debug;
 
 mod class;
 mod func;
 mod namespace;
+mod enumeration;
 
 #[derive(Debug, Clone)]
 pub struct Namespace {
@@ -34,8 +34,10 @@ pub struct Argument {
 
 pub fn make_hl_ast(api_map: APIMap, conf: &conf::Generation) {
     debug!("Generation config: {:#?}", conf);
-    let functions = function_processor(&api_map, &conf.functions);
+    let functions = func::function_processor(&api_map, &conf.functions);
     debug!("Functions: {functions:#?}");
-    let namespaces = namespace_generator(&functions, &conf.namespaces);
+    let namespaces = namespace::namespace_generator(&functions, &conf.namespaces);
     debug!("Namespaces: {namespaces:#?}");
+    let enumerations = enumeration::enumeration_processor(&api_map);
+    debug!("Enumerations: {enumerations:#?}");
 }
