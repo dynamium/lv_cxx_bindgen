@@ -1,9 +1,7 @@
 use log::{debug, trace};
 use rayon::prelude::*;
 use std::collections::HashSet;
-
 use crate::conf::{ExcludeInclude, NamespacesConfig};
-
 use super::{Argument, Function, Namespace};
 
 pub fn namespace_generator(
