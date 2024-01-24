@@ -10,7 +10,7 @@ pub struct EnumerationMember {
 
 #[derive(Debug, Clone)]
 pub struct Enumeration {
-    pub identifier: String,
+    pub identifier: Option<String>,
     pub r_type: String,
     pub members: Vec<EnumerationMember>,
 }
@@ -21,15 +21,19 @@ pub fn enumeration_processor(api_map: &APIMap) -> Vec<Enumeration> {
         .clone()
         .par_iter()
         .map(|enumeration| Enumeration {
-            identifier: enumeration.identifier.clone(),
+            identifier: if enumeration.identifier == "anonymous" {
+                None
+            } else {
+                Some(enumeration.identifier.clone())
+            },
             r_type: enumeration.r#type.clone(),
             members: enumeration
                 .members
                 .clone()
                 .into_iter()
                 .map(|member| EnumerationMember {
-                    identifier: member.0,
-                    value: member.1,
+                    identifier: member.0.clone(),
+                    value: member.1.clone()
                 })
                 .collect(),
         })
