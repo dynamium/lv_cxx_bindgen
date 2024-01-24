@@ -8,14 +8,15 @@ edition = "2021"
 anyhow = "1.0.77"
 clap = { version = "4.4.11", features = ["derive"] }
 clap-verbosity-flag = "2.1.1"
+lazy_static = "1.4.0"
 log = "0.4.20"
 pretty_env_logger = "0.5.0"
+rayon = "1.8.1"
+regex = "1.10.3"
 serde = { version = "1.0.193", features = ["derive"] }
 serde_json = "1.0.111"
 simplelog = "0.12.1"
 toml = "0.8.8"
-tree-sitter = "0.20.10"
-tree-sitter-cpp = "0.20.3"
 
 [dev-dependencies]
 cc = "*"

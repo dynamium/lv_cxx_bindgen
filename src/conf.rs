@@ -3,22 +3,61 @@ use std::path::PathBuf;
 use clap::ValueEnum;
 use serde::Deserialize;
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct Config {
     pub input: Input,
     pub generation: Generation,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct Input {
     pub cwd: Option<PathBuf>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct Generation {
-    pub target: CxxVersion,
-    pub class_exclude: Vec<GenerationClassItem>,
-    pub namespace_exclude: Vec<String>,
+    pub target: CxxVersion, // TODO: Move to CLI options
+    pub functions: FunctionsConfig,
+    pub classes: ClassesConfig,
+    pub namespaces: NamespacesConfig,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct ClassesConfig {
+    #[serde(default)]
+    pub exclude: Vec<ExcludeInclude>,
+    #[serde(default)]
+    pub include: Vec<ExcludeInclude>,
+    #[serde(default)]
+    pub rename: Vec<(String, String)>,
+    #[serde(default)]
+    pub inherit: Vec<(String, String)>,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct FunctionsConfig {
+    #[serde(default)]
+    pub exclude: Vec<String>,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct NamespacesConfig {
+    #[serde(default)]
+    pub exclude: Vec<ExcludeInclude>,
+    #[serde(default)]
+    pub include: Vec<ExcludeInclude>,
+    #[serde(default)]
+    pub rename: Vec<(String, String)>,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct ExcludeInclude {
+    #[serde(default)]
+    pub namespaces: Vec<String>,
+    #[serde(default)]
+    pub functions: Vec<String>,
+    #[serde(default)]
+    pub types: Vec<String>,
 }
 
 #[derive(Deserialize, Debug, Clone, ValueEnum)]
@@ -38,19 +77,6 @@ pub enum CxxVersion {
     #[serde(rename = "c++23")]
     #[clap(name = "c++23")]
     Cxx23,
-}
-
-#[derive(Deserialize, Debug)]
-#[serde(untagged)]
-pub enum GenerationClassItem {
-    Simple(String),
-    Full(GenClass),
-}
-
-#[derive(Deserialize, Debug)]
-pub struct GenClass {
-    pub ident: String,
-    pub inherits: Vec<String>,
 }
 
 pub struct Output {

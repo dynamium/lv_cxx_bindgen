@@ -1,21 +1,41 @@
-use std::collections::HashSet;
-
+use self::func::function_processor;
+use crate::{api_map::APIMap, conf, process::namespace::namespace_generator};
 use log::debug;
 
-use crate::api_map::APIMap;
-
-use self::func::make_namespace_group;
-
+mod class;
 mod func;
+mod namespace;
 
-pub fn make_api_map(api_map: APIMap) {
-    let namespace_list: HashSet<String> = (&api_map
-        .functions)
-        .into_iter()
-        .map(|f| f.identifier.split('_').collect::<Vec<_>>()[1].to_string())
-        .collect();
-    for ns in namespace_list {
-        let test = make_namespace_group(&ns, &api_map.functions, &[]);
-        debug!("{test:#?}");
-    }
+#[derive(Debug, Clone)]
+pub struct Namespace {
+    pub identifier: String,
+    pub members: Vec<Function>,
+}
+
+#[derive(Debug, Clone)]
+pub struct Class {
+    pub identifier: String,
+    pub constructor_args: Vec<Argument>,
+    pub members: Vec<Function>,
+}
+
+#[derive(Debug, Clone)]
+pub struct Function {
+    pub identifier: String,
+    pub return_type: String,
+    pub args: Vec<Argument>,
+}
+
+#[derive(Debug, Clone)]
+pub struct Argument {
+    pub identifier: Option<String>,
+    pub kind: String,
+}
+
+pub fn make_hl_ast(api_map: APIMap, conf: &conf::Generation) {
+    debug!("Generation config: {:#?}", conf);
+    let functions = function_processor(&api_map, &conf.functions);
+    debug!("Functions: {functions:#?}");
+    let namespaces = namespace_generator(&functions, &conf.namespaces);
+    debug!("Namespaces: {namespaces:#?}");
 }

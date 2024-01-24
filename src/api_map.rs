@@ -1,7 +1,7 @@
 use anyhow::Result;
 use serde::Deserialize;
 
-#[derive(Deserialize, Debug, Clone)]
+#[derive(Deserialize, Debug, Clone, PartialEq)]
 pub struct JSONRoot {
     pub enums: Vec<JSONValue>,
     pub functions: Vec<JSONValue>,
@@ -13,7 +13,7 @@ pub struct JSONRoot {
     pub macros: Vec<JSONValue>,
 }
 
-#[derive(Deserialize, Debug, Clone)]
+#[derive(Deserialize, Debug, Clone, PartialEq)]
 pub struct JSONValue {
     pub name: Option<String>,
     pub json_type: JSONType,
@@ -37,7 +37,7 @@ impl JSONValue {
     }
 }
 
-#[derive(Deserialize, Debug, Clone)]
+#[derive(Deserialize, Debug, Clone, PartialEq)]
 #[serde(rename_all = "snake_case")]
 pub enum JSONType {
     PrimitiveType,
@@ -63,40 +63,40 @@ pub enum JSONType {
     SpecialType,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct APIMap {
     pub enums: Vec<Enum>,
     pub functions: Vec<Function>,
     pub structs: Vec<Struct>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Enum {
     pub identifier: String,
     pub r#type: String,
     pub members: Vec<(String, Option<String>)>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Function {
     pub identifier: String,
     pub return_type: String,
     pub args: Vec<FuncArg>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct FuncArg {
     pub identifier: Option<String>,
     pub kind: String,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Struct {
     pub identifier: String,
     pub fields: Vec<StructField>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct StructField {
     pub identifier: String,
     pub kind: String,
@@ -113,12 +113,6 @@ pub fn parse(source_str: &str) -> Result<APIMap> {
         functions: json.process_functions(),
         structs: json.process_structs(),
     })
-}
-
-trait JSONProcessor {
-    fn process_enums(&self) -> Vec<Enum>;
-    fn process_functions(&self) -> Vec<Function>;
-    fn process_structs(&self) -> Vec<Struct>;
 }
 
 impl JSONRoot {
