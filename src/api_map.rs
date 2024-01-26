@@ -1,4 +1,5 @@
 use anyhow::Result;
+use itertools::Itertools;
 use log::debug;
 use serde::{ser::SerializeMap, Deserialize};
 
@@ -43,6 +44,7 @@ impl JSONValue {
 pub enum JSONType {
     PrimitiveType,
     StdlibType,
+    #[serde(rename = "lvgl_type")]
     LVGLType,
     EnumMember,
     Field,
@@ -64,48 +66,48 @@ pub enum JSONType {
     SpecialType,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, PartialOrd)]
 pub struct APIMap {
     pub enums: Vec<Enum>,
     pub functions: Vec<Function>,
     pub structs: Vec<Struct>,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, PartialOrd)]
 pub struct Enum {
     pub identifier: Option<String>,
     pub members: Vec<EnumMember>,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, PartialOrd)]
 pub struct EnumMember {
     pub identifier: String,
     /// When enums are processed, their names get changed to be more
     /// C++-like. This field is for storing the original name of the member.
     // pub original: String,
-    pub value: Option<String>
+    pub value: Option<String>,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, PartialOrd)]
 pub struct Function {
     pub identifier: String,
     pub return_type: String,
     pub args: Vec<FuncArg>,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, PartialOrd)]
 pub struct FuncArg {
     pub identifier: Option<String>,
     pub kind: String,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, PartialOrd)]
 pub struct Struct {
     pub identifier: String,
     pub fields: Vec<StructField>,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, PartialOrd)]
 pub struct StructField {
     pub identifier: String,
     pub kind: String,
@@ -137,10 +139,9 @@ impl JSONRoot {
                 td.r#type.clone().unwrap().json_type == JSONType::Enum
                     && td.r#type.clone().unwrap().name == None
             })
-            .map(|typedef| {
-                Enum {
-                    identifier: typedef.name,
-                    members: typedef
+            .map(|typedef| Enum {
+                identifier: typedef.name,
+                members: typedef
                     .r#type
                     .unwrap()
                     .members
@@ -151,34 +152,26 @@ impl JSONRoot {
                         value: None,
                     })
                     .collect(),
-                }
-            })
-            .collect::<Vec<_>>();
+            });
 
-        let anon_enums = self.enums
+        self
+            .enums
             .clone()
             .into_iter()
-            .filter(|e| e.name.is_none())
-            .map(|item| {
-                Enum {
-                    identifier: item.name,
-                    members: item
-                        .members
-                        .unwrap()
-                        .into_iter()
-                        .map(|member| {
-                            EnumMember {
-                                identifier: member.name.unwrap(),
-                                value: None,
-                            }
-                        })
-                        .collect(),
-                }
+            .map(|item| Enum {
+                identifier: item.name,
+                members: item
+                    .members
+                    .unwrap()
+                    .into_iter()
+                    .map(|member| EnumMember {
+                        identifier: member.name.unwrap(),
+                        value: None,
+                    })
+                    .collect(),
             })
-            .collect::<Vec<_>>();
-        debug!("tdenum {typedef_enums:#?}");
-        debug!("anon_enums {anon_enums:#?}");
-        todo!();
+            .merge(typedef_enums)
+            .collect::<Vec<_>>()
     }
 
     fn process_functions(&self) -> Vec<Function> {
