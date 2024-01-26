@@ -1,5 +1,6 @@
 use anyhow::Result;
-use serde::Deserialize;
+use log::debug;
+use serde::{ser::SerializeMap, Deserialize};
 
 #[derive(Deserialize, Debug, Clone, PartialEq)]
 pub struct JSONRoot {
@@ -42,7 +43,7 @@ impl JSONValue {
 pub enum JSONType {
     PrimitiveType,
     StdlibType,
-    LvglType,
+    LVGLType,
     EnumMember,
     Field,
     Struct,
@@ -72,9 +73,17 @@ pub struct APIMap {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Enum {
+    pub identifier: Option<String>,
+    pub members: Vec<EnumMember>,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct EnumMember {
     pub identifier: String,
-    pub r#type: String,
-    pub members: Vec<(String, Option<String>)>,
+    /// When enums are processed, their names get changed to be more
+    /// C++-like. This field is for storing the original name of the member.
+    // pub original: String,
+    pub value: Option<String>
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -117,26 +126,59 @@ pub fn parse(source_str: &str) -> Result<APIMap> {
 
 impl JSONRoot {
     fn process_enums(&self) -> Vec<Enum> {
-        self.enums
+        // TODO: This case is tricky. Almost all enums are anonymous, and their
+        // identifiers should be extracted from the typedefs they are associated with, if
+        // they *are* anonymous
+        let typedef_enums = self
+            .typedefs
             .clone()
             .into_iter()
+            .filter(|td| {
+                td.r#type.clone().unwrap().json_type == JSONType::Enum
+                    && td.r#type.clone().unwrap().name == None
+            })
+            .map(|typedef| {
+                Enum {
+                    identifier: typedef.name,
+                    members: typedef
+                    .r#type
+                    .unwrap()
+                    .members
+                    .unwrap()
+                    .into_iter()
+                    .map(|m| EnumMember {
+                        identifier: m.name.unwrap(),
+                        value: None,
+                    })
+                    .collect(),
+                }
+            })
+            .collect::<Vec<_>>();
+
+        let anon_enums = self.enums
+            .clone()
+            .into_iter()
+            .filter(|e| e.name.is_none())
             .map(|item| {
                 Enum {
-                    identifier: item.name.unwrap_or("anonymous".to_string()),
+                    identifier: item.name,
                     members: item
                         .members
                         .unwrap()
                         .into_iter()
                         .map(|member| {
-                            // Always None because the JSON doesn't have
-                            // enum member value parsing, sadly
-                            (member.name.unwrap(), None::<String>)
+                            EnumMember {
+                                identifier: member.name.unwrap(),
+                                value: None,
+                            }
                         })
                         .collect(),
-                    r#type: item.r#type.unwrap().name.unwrap(),
                 }
             })
-            .collect()
+            .collect::<Vec<_>>();
+        debug!("tdenum {typedef_enums:#?}");
+        debug!("anon_enums {anon_enums:#?}");
+        todo!();
     }
 
     fn process_functions(&self) -> Vec<Function> {
@@ -173,22 +215,52 @@ impl JSONRoot {
     }
 
     fn process_structs(&self) -> Vec<Struct> {
+        let typedefs: Vec<_> = self
+            .typedefs
+            .clone()
+            .into_iter()
+            .filter(|td| td.r#type.clone().unwrap().json_type == JSONType::LVGLType)
+            .collect();
         self.structures
             .clone()
             .into_iter()
             .map(|structure| Struct {
-                identifier: structure.name.unwrap(),
+                identifier: ident_from_typedefs(&typedefs, &structure.name.unwrap()),
                 fields: structure
                     .fields
                     .unwrap()
                     .into_iter()
                     .map(|field| StructField {
                         identifier: field.clone().name.unwrap(),
-                        kind: field.parse_as_type(),
+                        // I know that this might be redudant, but just to be safe, if
+                        // *maybe* a non-typedef type is used, idk
+                        kind: ident_from_typedefs(&typedefs, &field.parse_as_type()),
                         bitsize: field.bitsize.map(|x| x.parse().unwrap()),
                     })
                     .collect(),
             })
             .collect()
     }
+}
+
+// TODO: Document
+fn ident_from_typedefs(typedefs: &[JSONValue], ident: &str) -> String {
+    let (type_modifiers, clean_ident) = {
+        let mut res = String::new();
+        for char in ident.chars() {
+            if char == '*' {
+                res.push(char);
+            }
+        }
+        (res, ident.chars().filter(|c| *c != '*').collect::<String>())
+    };
+    let typedef = typedefs
+        .into_iter()
+        .find(|td| td.r#type.clone().unwrap().name.unwrap() == clean_ident);
+    if let Some(typedef) = typedef {
+        let mut ident = typedef.name.clone().unwrap_or(ident.to_string());
+        ident.push_str(&type_modifiers);
+        return ident;
+    }
+    return ident.to_string();
 }
