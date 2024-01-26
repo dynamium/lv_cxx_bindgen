@@ -59,24 +59,6 @@ pub struct ExcludeInclude {
     pub types: Vec<String>,
 }
 
-#[derive(Deserialize, Debug, Clone, ValueEnum)]
-pub enum CxxVersion {
-    #[serde(rename = "c++11")]
-    #[clap(name = "c++11")]
-    Cxx11,
-    #[serde(rename = "c++14")]
-    #[clap(name = "c++14")]
-    Cxx14,
-    #[serde(rename = "c++17")]
-    #[clap(name = "c++17")]
-    Cxx17,
-    #[serde(rename = "c++20")]
-    #[clap(name = "c++20")]
-    Cxx20,
-    #[serde(rename = "c++23")]
-    #[clap(name = "c++23")]
-    Cxx23,
-}
 
 pub struct Output {
     pub path: PathBuf,

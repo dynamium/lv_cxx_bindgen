@@ -1,5 +1,6 @@
-use crate::conf::CxxVersion;
 use core::fmt::Debug;
+
+use crate::cli::CxxVersion;
 
 pub trait Node: Debug {
     fn gen_source(&self, target: &CxxVersion) -> String;
