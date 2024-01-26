@@ -34,17 +34,11 @@ fn main() -> Result<()> {
     let api_map_file_content = fs::read_to_string(api_map_file_path)?;
     let api_map = api_map::parse(&api_map_file_content)?;
 
-    // debug!("Parsed API map: {:#?}", api_map);
+    debug!("Parsed&processed API map: {:#?}", api_map);
 
-    info!("Generating C++ API...");
-    let cpp_api_map = make_hl_ast(api_map, &config.generation);
-    debug!("C++ API: {cpp_api_map:#?}");
-    // let namespaces_list =
-    //     group::group_in_namespaces(&config.generation.namespace_exclude, &functions_orig);
-    // debug!("Resulting namespaces: {:#?}", namespaces_list);
-
-    // info!("Grouping in classes...");
-    // let _class_list = group::group_in_classes(&config.generation.class_exclude, &functions_orig);
+    info!("Generating HL-AST...");
+    let hl_ast = make_hl_ast(api_map, &config.generation);
+    debug!("HL-AST: {hl_ast:#?}");
 
     // info!("Converting groups into AST...");
 
