@@ -1,6 +1,6 @@
 use anyhow::Result;
 use itertools::Itertools;
-use log::debug;
+use log::{debug, trace};
 use serde::{ser::SerializeMap, Deserialize};
 
 #[derive(Deserialize, Debug, Clone, PartialEq)]
@@ -128,9 +128,6 @@ pub fn parse(source_str: &str) -> Result<APIMap> {
 
 impl JSONRoot {
     fn process_enums(&self) -> Vec<Enum> {
-        // TODO: This case is tricky. Almost all enums are anonymous, and their
-        // identifiers should be extracted from the typedefs they are associated with, if
-        // they *are* anonymous
         let typedef_enums = self
             .typedefs
             .clone()
@@ -154,8 +151,17 @@ impl JSONRoot {
                     .collect(),
             });
 
-        self
-            .enums
+        let flat_typedefs = self
+            .typedefs
+            .clone()
+            .into_iter()
+            .filter(|td| {
+                td.r#type.as_ref().unwrap().fields.is_none()
+                    && td.r#type.as_ref().unwrap().json_type == JSONType::LVGLType
+            })
+            .collect::<Vec<_>>();
+
+        self.enums
             .clone()
             .into_iter()
             .map(|item| Enum {
@@ -169,6 +175,24 @@ impl JSONRoot {
                         value: None,
                     })
                     .collect(),
+            })
+            .map(move |item| {
+                trace!("{item:#?}");
+                if item.identifier.is_none() {
+                    return item;
+                }
+
+                if let Some(td) = flat_typedefs.clone().into_iter().find(|i| {
+                    trace!("{i:#?}");
+                    i.name.as_ref().unwrap() == (&item).identifier.as_ref().unwrap()
+                }) {
+                    trace!("Found typedef: {td:#?}");
+                    let mut item = item.clone();
+                    item.identifier = td.r#type.unwrap().name;
+                    return item;
+                }
+
+                return item;
             })
             .merge(typedef_enums)
             .collect::<Vec<_>>()
