@@ -1,11 +1,12 @@
 pub mod ast;
 mod utils;
 
+use crate::cli::CxxVersion;
+
 use self::{
     ast::{Comment, NamespaceDeclaration, VariableDeclaration},
     utils::{make_code_block, make_comma_list},
 };
-use crate::conf::CxxVersion;
 use ast::{FunctionCall, FunctionDeclaration, Node};
 
 impl<N: Node> Node for VariableDeclaration<'_, N> {
