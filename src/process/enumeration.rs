@@ -35,7 +35,32 @@ fn convert_casing(input: &String) -> String {
     result
 }
 
-pub fn enumeration_processor(api_map: &APIMap) -> Vec<Enumeration> {    
+pub fn remove_common_string(input: &String, identifier: &String) -> String {
+    println!("{} : {}", input, identifier);
+    let mut input = input.to_lowercase();
+    
+    if input.starts_with("_") {
+        input = input.replacen("_", "", 1);
+    }
+
+    let mut identifier = identifier.to_lowercase();
+
+    if identifier.starts_with("_") {
+        identifier = identifier.replacen("_", "", 1);
+    }
+
+    let mut input_iter = input.chars().peekable();
+    let mut identifier_iter = identifier.chars();
+ 
+    while input_iter.peek() == identifier_iter.next().as_ref() {
+        input_iter.next();
+
+    }
+
+    input_iter.collect()
+}
+
+pub fn enumeration_processor(api_map: &APIMap) -> Vec<Enumeration> {
     let enumerations: Vec<Enumeration> = api_map
         .enums
         .clone()
@@ -52,7 +77,14 @@ pub fn enumeration_processor(api_map: &APIMap) -> Vec<Enumeration> {
                 .clone()
                 .into_iter()
                 .map(|member| EnumerationMember {
-                    identifier: member.identifier.clone(),
+                    identifier: convert_casing(&if enumeration.identifier.is_some() {
+                        remove_common_string(
+                            &member.identifier,
+                            &enumeration.identifier.clone().unwrap(),
+                        )
+                    } else {
+                        member.identifier
+                    }),
                     value: member.value.clone(),
                 })
                 .collect(),
