@@ -2,9 +2,9 @@ use crate::{api_map::APIMap, conf};
 use log::debug;
 
 mod class;
+mod enumeration;
 mod func;
 mod namespace;
-mod enumeration;
 
 #[derive(Debug, Clone)]
 pub struct Namespace {
@@ -30,6 +30,18 @@ pub struct Function {
 pub struct Argument {
     pub identifier: Option<String>,
     pub kind: String,
+}
+
+#[derive(Debug, Clone)]
+pub struct EnumerationMember {
+    pub identifier: String,
+    pub value: Option<String>,
+}
+
+#[derive(Debug, Clone)]
+pub struct Enumeration {
+    pub identifier: Option<String>,
+    pub members: Vec<EnumerationMember>,
 }
 
 pub fn make_hl_ast(api_map: APIMap, conf: &conf::Generation) {
