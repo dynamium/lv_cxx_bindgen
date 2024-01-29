@@ -1,19 +1,8 @@
 use log::warn;
 use rayon::prelude::*;
+use super::{Enumeration, EnumerationMember};
 
 use crate::api_map::{APIMap, Enum};
-
-#[derive(Debug, Clone)]
-pub struct EnumerationMember {
-    pub identifier: String,
-    pub value: Option<String>,
-}
-
-#[derive(Debug, Clone)]
-pub struct Enumeration {
-    pub identifier: Option<String>,
-    pub members: Vec<EnumerationMember>,
-}
 
 /// Convert a snake_case or SCREAMING_SNALKE_CASE string to PascalCase
 fn convert_casing(input: &String) -> String {
