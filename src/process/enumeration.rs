@@ -53,7 +53,7 @@ pub fn enumeration_processor(api_map: &APIMap) -> Vec<Enumeration> {
     let enumerations: Vec<Enumeration> = api_map
         .enums
         .clone()
-        .par_iter()
+        .into_iter()
         .map(|enumeration| Enumeration {
             identifier: if enumeration.identifier.is_some() {
                 Some(convert_casing(&enumeration.identifier.clone().unwrap()))
