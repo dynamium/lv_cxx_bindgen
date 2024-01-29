@@ -1,13 +1,13 @@
+use super::{Enumeration, EnumerationMember};
 use log::warn;
 use rayon::prelude::*;
-use super::{Enumeration, EnumerationMember};
 
 use crate::api_map::{APIMap, Enum};
 
 /// Convert a snake_case or SCREAMING_SNAKE_CASE string to PascalCase
 fn convert_casing(input: &String) -> String {
     let mut result = String::new();
-    result.reserve(input.len());    // Pre-allocate memory to avoid re-allocations
+    result.reserve(input.len()); // Pre-allocate memory to avoid re-allocations
     let mut capitalize_next = true;
 
     for c in input.chars() {
@@ -19,7 +19,7 @@ fn convert_casing(input: &String) -> String {
         } else {
             match c.to_lowercase().next() {
                 Some(c) => result.push(c),
-                None => result.push(c)
+                None => result.push(c),
             }
         }
     }
@@ -30,7 +30,7 @@ fn convert_casing(input: &String) -> String {
 /// Remove the common string from the beginning of the identifier
 pub fn remove_common_string(input: &String, identifier: &String) -> String {
     let mut input = input.to_lowercase();
-    
+
     if input.starts_with("_") {
         input = input.replacen("_", "", 1);
     }
@@ -43,10 +43,9 @@ pub fn remove_common_string(input: &String, identifier: &String) -> String {
 
     let mut input_iter = input.chars().peekable();
     let mut identifier_iter = identifier.chars();
- 
+
     while input_iter.peek() == identifier_iter.next().as_ref() {
         input_iter.next();
-
     }
 
     input_iter.collect()
