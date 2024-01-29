@@ -7,7 +7,7 @@ mod template;
 
 use anyhow::{Context, Result};
 use clap::Parser;
-use log::{debug, error, info};
+use log::{debug, info};
 use simplelog::{ColorChoice, TermLogger, TerminalMode};
 use std::{fs, path::PathBuf};
 
