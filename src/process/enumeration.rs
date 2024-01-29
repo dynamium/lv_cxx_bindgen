@@ -4,10 +4,10 @@ use super::{Enumeration, EnumerationMember};
 
 use crate::api_map::{APIMap, Enum};
 
-/// Convert a snake_case or SCREAMING_SNALKE_CASE string to PascalCase
+/// Convert a snake_case or SCREAMING_SNAKE_CASE string to PascalCase
 fn convert_casing(input: &String) -> String {
     let mut result = String::new();
-    result.reserve(input.len());
+    result.reserve(input.len());    // Pre-allocate memory to avoid re-allocations
     let mut capitalize_next = true;
 
     for c in input.chars() {
@@ -17,15 +17,18 @@ fn convert_casing(input: &String) -> String {
             result.push_str(&c.to_uppercase().to_string());
             capitalize_next = false;
         } else {
-            result.push(c); // ? : Maybe this should be c.to_lowercase()
+            match c.to_lowercase().next() {
+                Some(c) => result.push(c),
+                None => result.push(c)
+            }
         }
     }
 
     result
 }
 
+/// Remove the common string from the beginning of the identifier
 pub fn remove_common_string(input: &String, identifier: &String) -> String {
-    println!("{} : {}", input, identifier);
     let mut input = input.to_lowercase();
     
     if input.starts_with("_") {
@@ -80,6 +83,5 @@ pub fn enumeration_processor(api_map: &APIMap) -> Vec<Enumeration> {
         })
         .collect();
 
-    println!("enumerations: {:#?}", enumerations);
     enumerations
 }
