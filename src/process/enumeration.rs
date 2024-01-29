@@ -1,8 +1,7 @@
 use super::{Enumeration, EnumerationMember};
 use log::warn;
-use rayon::prelude::*;
 
-use crate::api_map::{APIMap, Enum};
+use crate::api_map::APIMap;
 
 /// Convert a snake_case or SCREAMING_SNAKE_CASE string to PascalCase
 fn convert_casing(input: &String) -> String {
