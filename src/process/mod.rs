@@ -5,6 +5,7 @@ mod class;
 mod enumeration;
 mod func;
 mod namespace;
+mod structure;
 
 #[derive(Debug, Clone)]
 pub struct Namespace {
@@ -44,6 +45,19 @@ pub struct Enumeration {
     pub members: Vec<EnumerationMember>,
 }
 
+#[derive(Debug, Clone)]
+pub struct StructureField {
+    pub identifier: String,
+    pub kind: String,
+    pub bitsize: Option<u8>,
+}
+
+#[derive(Debug, Clone)]
+pub struct Structure {
+    pub identifier: String,
+    pub fields: Vec<StructureField>,
+}
+
 pub fn make_hl_ast(api_map: APIMap, conf: &conf::Generation) {
     debug!("Generation config: {:#?}", conf);
     let functions = func::function_processor(&api_map, &conf.functions);
@@ -52,4 +66,6 @@ pub fn make_hl_ast(api_map: APIMap, conf: &conf::Generation) {
     debug!("Namespaces: {namespaces:#?}");
     let enumerations = enumeration::enumeration_processor(&api_map);
     debug!("Enumerations: {enumerations:#?}");
+    let structures = structure::structure_processor(&api_map);
+    debug!("Structures: {structures:#?}");
 }
