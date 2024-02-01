@@ -13,7 +13,7 @@ fn convert_to_pascal_case(input: &str) -> String {
         if c == '_' {
             capitalize_next = true;
         } else if capitalize_next {
-            result.push_str(&c.to_uppercase().to_string());
+            result.push(c.to_uppercase().next().unwrap());
             capitalize_next = false;
         } else {
             match c.to_lowercase().next() {
