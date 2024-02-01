@@ -4,7 +4,7 @@ use log::warn;
 use crate::api_map::APIMap;
 
 /// Convert a snake_case or SCREAMING_SNAKE_CASE string to PascalCase
-fn convert_to_pascal_case(input: &String) -> String {
+fn convert_to_pascal_case(input: &str) -> String {
     let mut result = String::new();
     result.reserve(input.len()); // Pre-allocate memory to avoid re-allocations
     let mut capitalize_next = true;
@@ -27,7 +27,7 @@ fn convert_to_pascal_case(input: &String) -> String {
 }
 
 /// Remove the common string from the beginning of the identifier
-pub fn remove_common_string(input: &String, identifier: &String) -> String {
+pub fn remove_common_string(input: &str, identifier: &str) -> String {
     let mut input = input.to_lowercase();
 
     if input.starts_with("_") {
