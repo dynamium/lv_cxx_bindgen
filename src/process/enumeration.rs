@@ -4,7 +4,7 @@ use log::warn;
 use crate::api_map::APIMap;
 
 /// Convert a snake_case or SCREAMING_SNAKE_CASE string to PascalCase
-fn convert_casing(input: &String) -> String {
+fn convert_to_pascal_case(input: &String) -> String {
     let mut result = String::new();
     result.reserve(input.len()); // Pre-allocate memory to avoid re-allocations
     let mut capitalize_next = true;
@@ -57,7 +57,7 @@ pub fn enumeration_processor(api_map: &APIMap) -> Vec<Enumeration> {
         .into_iter()
         .map(|enumeration| Enumeration {
             identifier: if enumeration.identifier.is_some() {
-                Some(convert_casing(&enumeration.identifier.clone().unwrap()))
+                Some(convert_to_pascal_case(&enumeration.identifier.clone().unwrap()))
             } else {
                 warn!("Enumeration identifier is None");
                 None
@@ -67,7 +67,7 @@ pub fn enumeration_processor(api_map: &APIMap) -> Vec<Enumeration> {
                 .clone()
                 .into_iter()
                 .map(|member| EnumerationMember {
-                    identifier: convert_casing(&if enumeration.identifier.is_some() {
+                    identifier: convert_to_pascal_case(&if enumeration.identifier.is_some() {
                         remove_common_string(
                             &member.identifier,
                             &enumeration.identifier.clone().unwrap(),
