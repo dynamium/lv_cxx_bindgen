@@ -3,7 +3,8 @@ use log::debug;
 
 use crate::api_map::APIMap;
 
-/// Convert a snake_case or SCREAMING_SNAKE_CASE string to PascalCase
+/// Convert a snake_case or SCREAMING_SNAKE_CASE string to PascalCase. Only for ASCII
+/// strings, no UTF-8.
 fn convert_to_pascal_case(input: &str) -> String {
     let mut result = String::new();
     result.reserve(input.len()); // Pre-allocate memory to avoid re-allocations
@@ -13,7 +14,7 @@ fn convert_to_pascal_case(input: &str) -> String {
         if c == '_' {
             capitalize_next = true;
         } else if capitalize_next {
-            result.push(c.to_uppercase().next().unwrap());
+            result.push(c.to_ascii_uppercase());
             capitalize_next = false;
         } else {
             match c.to_lowercase().next() {
