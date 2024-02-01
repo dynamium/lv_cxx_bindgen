@@ -31,13 +31,13 @@ pub fn remove_common_string(input: &str, identifier: &str) -> String {
     let mut input = input.to_lowercase();
 
     if input.starts_with("_") {
-        input = input.replacen("_", "", 1);
+        input.remove(0);
     }
 
     let mut identifier = identifier.to_lowercase();
 
     if identifier.starts_with("_") {
-        identifier = identifier.replacen("_", "", 1);
+        input.remove(0);
     }
 
     let mut input_iter = input.chars().peekable();
