@@ -1,5 +1,5 @@
 use super::{Enumeration, EnumerationMember};
-use log::warn;
+use log::debug;
 
 use crate::api_map::APIMap;
 
@@ -59,7 +59,7 @@ pub fn enumeration_processor(api_map: &APIMap) -> Vec<Enumeration> {
             identifier: if enumeration.identifier.is_some() {
                 Some(convert_to_pascal_case(&enumeration.identifier.clone().unwrap()))
             } else {
-                warn!("Enumeration identifier is None");
+                debug!("Enumeration identifier is None");
                 None
             },
             members: enumeration
