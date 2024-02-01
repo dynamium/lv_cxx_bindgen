@@ -57,12 +57,7 @@ pub fn enumeration_processor(api_map: &APIMap) -> Vec<Enumeration> {
         .clone()
         .into_iter()
         .map(|enumeration| Enumeration {
-            identifier: if enumeration.identifier.is_some() {
-                Some(convert_to_pascal_case(&enumeration.identifier.clone().unwrap()))
-            } else {
-                debug!("Enumeration identifier is None");
-                None
-            },
+            identifier: enumeration.clone().identifier,
             members: enumeration
                 .members
                 .clone()
