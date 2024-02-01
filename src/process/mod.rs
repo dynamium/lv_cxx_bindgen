@@ -6,6 +6,10 @@ mod enumeration;
 mod func;
 mod namespace;
 
+use enumeration::enumeration_processor;
+use func::function_processor;
+use namespace::namespace_generator;
+
 #[derive(Debug, Clone)]
 pub struct Namespace {
     pub identifier: String,
@@ -46,10 +50,10 @@ pub struct Enumeration {
 
 pub fn make_hl_ast(api_map: APIMap, conf: &conf::Generation) {
     debug!("Generation config: {:#?}", conf);
-    let functions = func::function_processor(&api_map, &conf.functions);
+    let functions = function_processor(&api_map, &conf.functions);
     debug!("Functions: {functions:#?}");
-    let namespaces = namespace::namespace_generator(&functions, &conf.namespaces);
+    let namespaces = namespace_generator(&functions, &conf.namespaces);
     debug!("Namespaces: {namespaces:#?}");
-    let enumerations = enumeration::enumeration_processor(&api_map);
+    let enumerations = enumeration_processor(&api_map);
     debug!("Enumerations: {enumerations:#?}");
 }
