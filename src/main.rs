@@ -7,9 +7,9 @@ mod template;
 
 use anyhow::{Context, Result};
 use clap::Parser;
-use log::{debug, info};
+use log::{debug, info, warn};
 use simplelog::{ColorChoice, TermLogger, TerminalMode};
-use std::{fs, path::PathBuf};
+use std::{fs, path::PathBuf, process::Command, fmt::format};
 
 use crate::{cli::Cli, conf::Config, process::make_hl_ast};
 
@@ -27,17 +27,17 @@ fn main() -> Result<()> {
         TerminalMode::Mixed,
         ColorChoice::Auto,
     );
+
     info!("Starting generation...");
 
     info!("Retrieving all functions...");
-    let api_map_file_path = config.input.cwd.unwrap_or(PathBuf::new()).join("lvgl.json");
-    let api_map_file_content = fs::read_to_string(api_map_file_path)?;
+    let api_map_file_content = fs::read_to_string(cli.api_map)?;
     let api_map = api_map::parse(&api_map_file_content)?;
 
     debug!("Parsed&processed API map: {:#?}", api_map);
 
     info!("Generating HL-AST...");
-    let hl_ast = make_hl_ast(api_map, &config.generation);
+    let hl_ast = make_hl_ast(api_map, &config);
     debug!("HL-AST: {hl_ast:#?}");
 
     // info!("Converting groups into AST...");

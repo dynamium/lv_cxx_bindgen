@@ -1,21 +1,9 @@
 use std::path::PathBuf;
 
-use clap::ValueEnum;
 use serde::Deserialize;
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct Config {
-    pub input: Input,
-    pub generation: Generation,
-}
-
-#[derive(Deserialize, Debug, Clone)]
-pub struct Input {
-    pub cwd: Option<PathBuf>,
-}
-
-#[derive(Deserialize, Debug, Clone)]
-pub struct Generation {
     pub functions: FunctionsConfig,
     pub classes: ClassesConfig,
     pub namespaces: NamespacesConfig,

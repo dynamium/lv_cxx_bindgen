@@ -32,7 +32,7 @@ pub struct Argument {
     pub kind: String,
 }
 
-pub fn make_hl_ast(api_map: APIMap, conf: &conf::Generation) {
+pub fn make_hl_ast(api_map: APIMap, conf: &conf::Config) {
     debug!("Generation config: {:#?}", conf);
     let functions = function_processor(&api_map, &conf.functions);
     debug!("Functions: {functions:#?}");
