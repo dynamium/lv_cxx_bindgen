@@ -21,24 +21,18 @@ All configuration is done in the `lv_cxx_bindgen.toml` file. An example file
 looks like this:
 
 ```toml
-[input]
-cwd = "thirdparty/lvgl"
-
-[generation]
-target = "c++20"
-classes = {
-    exclude = {
-        groups = ["anim"],
-        functions = ["obj_get_disp", "font_set_kerning"]
-    },
-    renames = [
-        ["obj", "Object"]
-    ],
-    inheritances = [
-        ["img", "obj"],
-        ["menu", "obj"]
-    ]
-}
+[classes]
+exclude = {
+    groups = ["anim"],
+    functions = ["obj_get_disp", "font_set_kerning"]
+},
+renames = [
+    ["obj", "Object"]
+],
+inheritances = [
+    ["img", "obj"],
+    ["menu", "obj"]
+]
 namespaces = {
     exclude = ["obj"],
     renames = [

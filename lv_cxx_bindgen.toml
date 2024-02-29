@@ -1,9 +1,7 @@
-[input]
-cwd = "res/lvgl/"
+[classes]
 
-[generation]
-classes = {}
-functions = { exclude = ["lv_str.*", "lv_mem.*"] }
+[functions]
+exclude = ["lv_str.*", "lv_mem.*"] 
 
-[generation.namespaces]
+[namespaces]
 include = [{ namespaces = ["file_explorer", "tiny_ttf"] }]

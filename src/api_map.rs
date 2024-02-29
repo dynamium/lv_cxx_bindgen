@@ -27,6 +27,7 @@ pub struct JSONValue {
     pub members: Option<Vec<JSONValue>>,
     pub args: Option<Vec<JSONValue>>,
     pub bitsize: Option<String>,
+    pub value: Option<String>
 }
 
 impl JSONValue {
@@ -146,7 +147,7 @@ impl JSONRoot {
                     .into_iter()
                     .map(|m| EnumMember {
                         identifier: m.name.unwrap(),
-                        value: None,
+                        value: m.value,
                     })
                     .collect(),
             });
