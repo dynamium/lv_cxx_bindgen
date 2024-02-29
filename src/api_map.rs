@@ -147,7 +147,7 @@ impl JSONRoot {
                     .into_iter()
                     .map(|m| EnumMember {
                         identifier: m.name.unwrap(),
-                        value: None,
+                        value: m.value,
                     })
                     .collect(),
             });
