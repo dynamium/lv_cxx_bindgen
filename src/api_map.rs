@@ -27,6 +27,7 @@ pub struct JSONValue {
     pub members: Option<Vec<JSONValue>>,
     pub args: Option<Vec<JSONValue>>,
     pub bitsize: Option<String>,
+    pub value: Option<String>
 }
 
 impl JSONValue {
