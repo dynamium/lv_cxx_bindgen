@@ -83,26 +83,21 @@ pub fn enumeration_processor(api_map: &APIMap) -> Vec<Enumeration> {
         .enums
         .clone()
         .into_iter()
-        .map(|enumeration| {
-            let members: Vec<EnumMember> = enumeration
+        .map(|mut enumeration| {
+            // Nuke all "internal" members that start with an underscore
+            enumeration
                 .members
-                .into_iter()
-                .filter_map(|member| {
-                    if member.identifier.starts_with('_') {
-                        return None; // Let's nuke it :D
-                    }
-                    Some(member)
-                })
-                .collect();
+                .retain(|member| !member.identifier.starts_with('_'));
 
-            let members_identifiers: Vec<&str> = members
+            let members_identifiers: Vec<&str> = enumeration
+                .members
                 .iter()
                 .map(|member| member.identifier.as_str())
                 .collect();
 
             let common_identifier = find_common_string(members_identifiers.clone());
 
-            let members: Vec<EnumerationMember> = members
+            let members: Vec<EnumerationMember> = enumeration.members
                 .clone()
                 .into_iter()
                 .map(|member| {
