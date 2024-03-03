@@ -1,7 +1,6 @@
 use super::{Enumeration, EnumerationMember};
-use log::debug;
 
-use crate::api_map::{APIMap, EnumMember};
+use crate::api_map::APIMap;
 
 /// Convert a snake_case or SCREAMING_SNAKE_CASE string to PascalCase. Only for ASCII
 /// strings, no UTF-8.
@@ -97,7 +96,8 @@ pub fn enumeration_processor(api_map: &APIMap) -> Vec<Enumeration> {
 
             let common_identifier = find_common_string(members_identifiers.clone());
 
-            let members: Vec<EnumerationMember> = enumeration.members
+            let members: Vec<EnumerationMember> = enumeration
+                .members
                 .clone()
                 .into_iter()
                 .map(|member| {
