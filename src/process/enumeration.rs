@@ -1,4 +1,4 @@
-use super::{Enumeration, EnumerationMember};
+use super::{cli, Enumeration, EnumerationMember};
 
 use crate::api_map::APIMap;
 
@@ -77,7 +77,7 @@ pub fn find_common_string(strings: Vec<&str>) -> String {
     prefix
 }
 
-pub fn enumeration_processor(api_map: &APIMap) -> Vec<Enumeration> {
+pub fn enumeration_processor(api_map: &APIMap, cli: &cli::Cli) -> Vec<Enumeration> {
     let enumerations: Vec<Enumeration> = api_map
         .enums
         .clone()
@@ -101,10 +101,27 @@ pub fn enumeration_processor(api_map: &APIMap) -> Vec<Enumeration> {
                 .clone()
                 .into_iter()
                 .map(|member| {
-                    let identifier = convert_to_pascal_case(&remove_common_string(
-                        &member.identifier,
-                        &common_identifier,
-                    ));
+                    // If the enumeration has an identifier, use it.
+                    let identifier = if enumeration.identifier.is_some() {
+                        convert_to_pascal_case(&remove_common_string(
+                            &member.identifier,
+                            &common_identifier,
+                        ))
+                    }
+                    // Otherwise infer it from common string or let it as is (user will have to provide it)
+                    else {
+                        match cli.anon_enum_handling {
+                            cli::AnonEnumGeneration::Constexpr => {
+                                member.identifier.clone()
+                            }
+                            cli::AnonEnumGeneration::Infer => {
+                                convert_to_pascal_case(&remove_common_string(
+                                    &member.identifier,
+                                    &common_identifier,
+                                ))
+                            }
+                        }
+                    };
                     EnumerationMember {
                         identifier,
                         value: member.value,
@@ -112,8 +129,24 @@ pub fn enumeration_processor(api_map: &APIMap) -> Vec<Enumeration> {
                 })
                 .collect();
 
+            // If the enumeration has an identifier, use it. Otherwise infer it from common string or let it be None (user will have to provide it)
+            let identifier = if enumeration.identifier.is_some() {
+                Some(convert_to_pascal_case(&enumeration.identifier.unwrap()))
+            } else {
+                match cli.anon_enum_handling {
+                    cli::AnonEnumGeneration::Constexpr => None,
+                    cli::AnonEnumGeneration::Infer => {
+                        if common_identifier.is_empty() {
+                            None
+                        } else {
+                            Some(convert_to_pascal_case(&common_identifier))
+                        }
+                    }
+                }
+            };
+
             Enumeration {
-                identifier: enumeration.identifier.clone(),
+                identifier,
                 members,
             }
         })

@@ -1,4 +1,4 @@
-use crate::{api_map::APIMap, conf};
+use crate::{api_map::APIMap, conf, cli};
 use log::debug;
 
 mod class;
@@ -48,12 +48,12 @@ pub struct Enumeration {
     pub members: Vec<EnumerationMember>,
 }
 
-pub fn make_hl_ast(api_map: APIMap, conf: &conf::Config) {
+pub fn make_hl_ast(api_map: APIMap, conf: &conf::Config, cli : &cli::Cli) {
     debug!("Generation config: {:#?}", conf);
     let functions = function_processor(&api_map, &conf.functions);
     debug!("Functions: {functions:#?}");
     let namespaces = namespace_generator(&functions, &conf.namespaces);
     debug!("Namespaces: {namespaces:#?}");
-    let enumerations = enumeration_processor(&api_map);
+    let enumerations = enumeration_processor(&api_map, &cli);
     debug!("Enumerations: {enumerations:#?}");
 }
