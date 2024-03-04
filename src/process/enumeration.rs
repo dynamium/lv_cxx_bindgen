@@ -51,7 +51,7 @@ pub fn remove_common_string(input: &str, identifier: &str) -> String {
 }
 
 /// Find the largest common string in a vector of strings
-pub fn find_common_string(strings: Vec<&str>) -> String {
+pub fn find_common_string(strings: &[&str]) -> String {
     // If the input is empty, return an empty string
     if strings.len() < 2 {
         return String::new();
@@ -65,7 +65,7 @@ pub fn find_common_string(strings: Vec<&str>) -> String {
     'outer: for i in 0..min_length {
         let char_at_index = strings[0].chars().nth(i).unwrap();
         // Check if the character at the current index is the same in all strings
-        for string in &strings {
+        for string in strings {
             // If the character at the current index is not the same in all strings, break all loops
             if string.chars().nth(i).unwrap() != char_at_index {
                 break 'outer;
@@ -77,7 +77,7 @@ pub fn find_common_string(strings: Vec<&str>) -> String {
     prefix
 }
 
-pub fn enumeration_processor(api_map: &APIMap, cli: &cli::Cli) -> Vec<Enumeration> {
+pub fn enumeration_processor(api_map: &APIMap, anon_enum_handling: &cli::AnonEnumGeneration) -> Vec<Enumeration> {
     let enumerations: Vec<Enumeration> = api_map
         .enums
         .clone()
@@ -94,7 +94,7 @@ pub fn enumeration_processor(api_map: &APIMap, cli: &cli::Cli) -> Vec<Enumeratio
                 .map(|member| member.identifier.as_str())
                 .collect();
 
-            let common_identifier = find_common_string(members_identifiers.clone());
+            let common_identifier = find_common_string(&members_identifiers);
 
             let members: Vec<EnumerationMember> = enumeration
                 .members
@@ -110,7 +110,7 @@ pub fn enumeration_processor(api_map: &APIMap, cli: &cli::Cli) -> Vec<Enumeratio
                     }
                     // Otherwise infer it from common string or let it as is (user will have to provide it)
                     else {
-                        match cli.anon_enum_handling {
+                        match anon_enum_handling {
                             cli::AnonEnumGeneration::Constexpr => {
                                 member.identifier.clone()
                             }
@@ -133,7 +133,7 @@ pub fn enumeration_processor(api_map: &APIMap, cli: &cli::Cli) -> Vec<Enumeratio
             let identifier = if enumeration.identifier.is_some() {
                 Some(convert_to_pascal_case(&enumeration.identifier.unwrap()))
             } else {
-                match cli.anon_enum_handling {
+                match anon_enum_handling {
                     cli::AnonEnumGeneration::Constexpr => None,
                     cli::AnonEnumGeneration::Infer => {
                         if common_identifier.is_empty() {

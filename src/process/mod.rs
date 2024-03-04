@@ -48,12 +48,12 @@ pub struct Enumeration {
     pub members: Vec<EnumerationMember>,
 }
 
-pub fn make_hl_ast(api_map: APIMap, conf: &conf::Config, cli : &cli::Cli) {
+pub fn make_hl_ast(api_map: APIMap, conf: &conf::Config, anon_enum_handling : &cli::AnonEnumGeneration) {
     debug!("Generation config: {:#?}", conf);
     let functions = function_processor(&api_map, &conf.functions);
     debug!("Functions: {functions:#?}");
     let namespaces = namespace_generator(&functions, &conf.namespaces);
     debug!("Namespaces: {namespaces:#?}");
-    let enumerations = enumeration_processor(&api_map, &cli);
+    let enumerations = enumeration_processor(&api_map, anon_enum_handling);
     debug!("Enumerations: {enumerations:#?}");
 }
