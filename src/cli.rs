@@ -23,11 +23,11 @@ pub struct Cli {
     pub use_camel_case: bool,
     /// Changes how anonymous enums (that is, enums without names) are handled. See
     /// examples in expanded help.
-    #[arg(long, value_enum, default_value_t = AnonEnumGeneration::Infer)]
+    #[arg(long = "anon-enum", value_enum, default_value_t = AnonEnumGeneration::Infer)]
     pub anon_enum_handling: AnonEnumGeneration,
     /// Path to the API map .json file
     #[arg(short, long)]
-    pub api_map: String
+    pub api_map: String,
 }
 
 #[derive(Debug, Clone, ValueEnum)]
@@ -35,7 +35,7 @@ pub enum AnonEnumGeneration {
     /// LV_PROPERTY_ID_INVALID becomes lvgl::property_id_invalid
     Constexpr,
     /// LV_PROPERTY_ID_INVALID becomes lvgl::PropertyID::Invalid
-    Infer
+    Infer,
 }
 
 #[derive(Debug, Clone, ValueEnum)]

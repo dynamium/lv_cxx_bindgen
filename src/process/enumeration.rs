@@ -8,7 +8,6 @@ fn convert_to_pascal_case(input: &str) -> String {
     let mut result = String::new();
     result.reserve(input.len()); // Pre-allocate memory to avoid re-allocations
     let mut capitalize_next = true;
-
     for c in input.chars() {
         if c == '_' {
             capitalize_next = true;
@@ -77,7 +76,10 @@ pub fn find_common_string(strings: &[&str]) -> String {
     prefix
 }
 
-pub fn enumeration_processor(api_map: &APIMap, anon_enum_handling: &cli::AnonEnumGeneration) -> Vec<Enumeration> {
+pub fn enumeration_processor(
+    api_map: &APIMap,
+    anon_enum_handling: &cli::AnonEnumGeneration,
+) -> Vec<Enumeration> {
     let enumerations: Vec<Enumeration> = api_map
         .enums
         .clone()
@@ -124,6 +126,7 @@ pub fn enumeration_processor(api_map: &APIMap, anon_enum_handling: &cli::AnonEnu
                     };
                     EnumerationMember {
                         identifier,
+                        og_identifier: member.identifier,
                         value: member.value,
                     }
                 })
@@ -131,7 +134,9 @@ pub fn enumeration_processor(api_map: &APIMap, anon_enum_handling: &cli::AnonEnu
 
             // If the enumeration has an identifier, use it. Otherwise infer it from common string or let it be None (user will have to provide it)
             let identifier = if enumeration.identifier.is_some() {
-                Some(convert_to_pascal_case(&enumeration.identifier.unwrap()))
+                Some(convert_to_pascal_case(
+                    &enumeration.identifier.clone().unwrap(),
+                ))
             } else {
                 match anon_enum_handling {
                     cli::AnonEnumGeneration::Constexpr => None,
@@ -147,6 +152,7 @@ pub fn enumeration_processor(api_map: &APIMap, anon_enum_handling: &cli::AnonEnu
 
             Enumeration {
                 identifier,
+                og_identifier: enumeration.identifier,
                 members,
             }
         })

@@ -47,7 +47,6 @@ pub struct ExcludeInclude {
     pub types: Vec<String>,
 }
 
-
 pub struct Output {
     pub path: PathBuf,
 }

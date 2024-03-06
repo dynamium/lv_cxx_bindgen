@@ -9,7 +9,7 @@ use anyhow::{Context, Result};
 use clap::Parser;
 use log::{debug, info, warn};
 use simplelog::{ColorChoice, TermLogger, TerminalMode};
-use std::{fs, path::PathBuf, process::Command, fmt::format};
+use std::{fmt::format, fs, path::PathBuf, process::Command};
 
 use crate::{cli::Cli, conf::Config, process::make_hl_ast};
 
