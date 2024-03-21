@@ -7,16 +7,16 @@ mod template;
 
 use anyhow::{Context, Result};
 use clap::Parser;
-use log::{debug, info};
+use log::{debug, info, warn};
 use simplelog::{ColorChoice, TermLogger, TerminalMode};
-use std::{fs, path::PathBuf};
+use std::{fmt::format, fs, path::PathBuf, process::Command};
 
 use crate::{cli::Cli, conf::Config, process::make_hl_ast};
 
 fn main() -> Result<()> {
     let cli = Cli::parse();
     let config: Config = toml::from_str(
-        fs::read_to_string(cli.config)
+        fs::read_to_string(&cli.config)
             .context("Failed to read the config file")?
             .as_str(),
     )?;
@@ -27,21 +27,18 @@ fn main() -> Result<()> {
         TerminalMode::Mixed,
         ColorChoice::Auto,
     );
+
     info!("Starting generation...");
 
     info!("Retrieving all functions...");
-    let api_map_file_path = config.input.cwd.unwrap_or(PathBuf::new()).join("lvgl.json");
-    let api_map_file_content =
-        fs::read_to_string(api_map_file_path.clone()).context(format!(
-            "Failed to read the API map file at {}",
-            api_map_file_path.display()
-        ))?;
+    let api_map_file_content = fs::read_to_string(&cli.api_map)?;
     let api_map = api_map::parse(&api_map_file_content)?;
 
     debug!("Parsed&processed API map: {:#?}", api_map);
 
     info!("Generating HL-AST...");
-    let hl_ast = make_hl_ast(api_map, &config.generation);
+
+    let hl_ast = make_hl_ast(api_map, &config, &cli.anon_enum_handling);
     debug!("HL-AST: {hl_ast:#?}");
 
     // info!("Converting groups into AST...");

@@ -27,6 +27,7 @@ pub struct JSONValue {
     pub members: Option<Vec<JSONValue>>,
     pub args: Option<Vec<JSONValue>>,
     pub bitsize: Option<String>,
+    pub value: Option<String>,
 }
 
 impl JSONValue {
@@ -114,8 +115,6 @@ pub struct StructField {
     pub bitsize: Option<u8>,
 }
 
-// god forgive me for the amount of .unwrap() statements that
-// there will be in this function
 pub fn parse(source_str: &str) -> Result<APIMap> {
     let json: JSONRoot = serde_json::from_str(source_str)?;
 
@@ -146,7 +145,7 @@ impl JSONRoot {
                     .into_iter()
                     .map(|m| EnumMember {
                         identifier: m.name.unwrap(),
-                        value: None,
+                        value: m.value,
                     })
                     .collect(),
             });
