@@ -9,14 +9,14 @@ use anyhow::{Context, Result};
 use clap::Parser;
 use log::{debug, info, warn};
 use simplelog::{ColorChoice, TermLogger, TerminalMode};
-use std::{fs, path::PathBuf, process::Command, fmt::format};
+use std::{fmt::format, fs, path::PathBuf, process::Command};
 
 use crate::{cli::Cli, conf::Config, process::make_hl_ast};
 
 fn main() -> Result<()> {
     let cli = Cli::parse();
     let config: Config = toml::from_str(
-        fs::read_to_string(cli.config)
+        fs::read_to_string(&cli.config)
             .context("Failed to read the config file")?
             .as_str(),
     )?;
@@ -31,13 +31,13 @@ fn main() -> Result<()> {
     info!("Starting generation...");
 
     info!("Retrieving all functions...");
-    let api_map_file_content = fs::read_to_string(cli.api_map)?;
+    let api_map_file_content = fs::read_to_string(&cli.api_map)?;
     let api_map = api_map::parse(&api_map_file_content)?;
 
     debug!("Parsed&processed API map: {:#?}", api_map);
 
     info!("Generating HL-AST...");
-    let hl_ast = make_hl_ast(api_map, &config);
+    let hl_ast = make_hl_ast(api_map, &config, &cli.anon_enum_handling);
     debug!("HL-AST: {hl_ast:#?}");
 
     // info!("Converting groups into AST...");

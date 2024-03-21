@@ -1,10 +1,14 @@
-use self::func::function_processor;
-use crate::{api_map::APIMap, conf, process::namespace::namespace_generator};
+use crate::{api_map::APIMap, cli, conf};
 use log::debug;
 
 mod class;
+mod enumeration;
 mod func;
 mod namespace;
+
+use enumeration::enumeration_processor;
+use func::function_processor;
+use namespace::namespace_generator;
 
 #[derive(Debug, Clone)]
 pub struct Namespace {
@@ -32,10 +36,30 @@ pub struct Argument {
     pub kind: String,
 }
 
-pub fn make_hl_ast(api_map: APIMap, conf: &conf::Config) {
+#[derive(Debug, Clone)]
+pub struct EnumerationMember {
+    pub identifier: String,
+    pub og_identifier: String,
+    pub value: Option<String>,
+}
+
+#[derive(Debug, Clone)]
+pub struct Enumeration {
+    pub identifier: Option<String>,
+    pub og_identifier: Option<String>,
+    pub members: Vec<EnumerationMember>,
+}
+
+pub fn make_hl_ast(
+    api_map: APIMap,
+    conf: &conf::Config,
+    anon_enum_handling: &cli::AnonEnumGeneration,
+) {
     debug!("Generation config: {:#?}", conf);
     let functions = function_processor(&api_map, &conf.functions);
     debug!("Functions: {functions:#?}");
     let namespaces = namespace_generator(&functions, &conf.namespaces);
     debug!("Namespaces: {namespaces:#?}");
+    let enumerations = enumeration_processor(&api_map, anon_enum_handling);
+    debug!("Enumerations: {enumerations:#?}");
 }
