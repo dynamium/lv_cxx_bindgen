@@ -1,3 +1,5 @@
+use log::info;
+
 use super::{cli, Enumeration, EnumerationMember};
 
 use crate::api_map::APIMap;
@@ -132,26 +134,8 @@ pub fn enumeration_processor(
                 })
                 .collect();
 
-            // If the enumeration has an identifier, use it. Otherwise infer it from common string or let it be None (user will have to provide it)
-            let identifier = if enumeration.identifier.is_some() {
-                Some(convert_to_pascal_case(
-                    &enumeration.identifier.clone().unwrap(),
-                ))
-            } else {
-                match anon_enum_handling {
-                    cli::AnonEnumGeneration::Constexpr => None,
-                    cli::AnonEnumGeneration::Infer => {
-                        if common_identifier.is_empty() {
-                            None
-                        } else {
-                            Some(convert_to_pascal_case(&common_identifier))
-                        }
-                    }
-                }
-            };
-
             Enumeration {
-                identifier,
+                identifier: enumeration.identifier.clone(),
                 og_identifier: enumeration.identifier,
                 members,
             }
