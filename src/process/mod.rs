@@ -52,6 +52,19 @@ pub struct Enumeration {
     pub members: Vec<EnumerationMember>,
 }
 
+#[derive(Debug, Clone)]
+pub struct StructureField {
+    pub identifier: String,
+    pub kind: String,
+    pub bitsize: Option<u8>,
+}
+
+#[derive(Debug, Clone)]
+pub struct Structure {
+    pub identifier: String,
+    pub fields: Vec<StructureField>,
+}
+
 pub fn make_hl_ast(
     api_map: APIMap,
     conf: &conf::Config,
