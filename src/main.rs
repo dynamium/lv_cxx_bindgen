@@ -37,6 +37,7 @@ fn main() -> Result<()> {
     debug!("Parsed&processed API map: {:#?}", api_map);
 
     info!("Generating HL-AST...");
+
     let hl_ast = make_hl_ast(api_map, &config, &cli.anon_enum_handling);
     debug!("HL-AST: {hl_ast:#?}");
 

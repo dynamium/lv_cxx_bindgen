@@ -5,6 +5,7 @@ mod class;
 mod enumeration;
 mod func;
 mod namespace;
+mod structure;
 
 use enumeration::enumeration_processor;
 use func::function_processor;
@@ -46,8 +47,22 @@ pub struct EnumerationMember {
 #[derive(Debug, Clone)]
 pub struct Enumeration {
     pub identifier: Option<String>,
+
     pub og_identifier: Option<String>,
     pub members: Vec<EnumerationMember>,
+}
+
+#[derive(Debug, Clone)]
+pub struct StructureField {
+    pub identifier: String,
+    pub kind: String,
+    pub bitsize: Option<u8>,
+}
+
+#[derive(Debug, Clone)]
+pub struct Structure {
+    pub identifier: String,
+    pub fields: Vec<StructureField>,
 }
 
 pub fn make_hl_ast(
@@ -56,10 +71,13 @@ pub fn make_hl_ast(
     anon_enum_handling: &cli::AnonEnumGeneration,
 ) {
     debug!("Generation config: {:#?}", conf);
-    let functions = function_processor(&api_map, &conf.functions);
+    let functions = func::function_processor(&api_map, &conf.functions);
     debug!("Functions: {functions:#?}");
-    let namespaces = namespace_generator(&functions, &conf.namespaces);
+    let namespaces = namespace::namespace_generator(&functions, &conf.namespaces);
     debug!("Namespaces: {namespaces:#?}");
     let enumerations = enumeration_processor(&api_map, anon_enum_handling);
     debug!("Enumerations: {enumerations:#?}");
+    let structures = structure::structure_processor(&api_map);
+    debug!("Structures: {structures:#?}");
+
 }

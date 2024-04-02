@@ -10,6 +10,7 @@ fn convert_to_pascal_case(input: &str) -> String {
     let mut result = String::new();
     result.reserve(input.len()); // Pre-allocate memory to avoid re-allocations
     let mut capitalize_next = true;
+  
     for c in input.chars() {
         if c == '_' {
             capitalize_next = true;
@@ -28,6 +29,7 @@ fn convert_to_pascal_case(input: &str) -> String {
 }
 
 /// Remove the common string from the beginning of the identifier
+
 pub fn remove_common_string(input: &str, identifier: &str) -> String {
     let mut input = input.to_lowercase();
 
@@ -50,6 +52,7 @@ pub fn remove_common_string(input: &str, identifier: &str) -> String {
 
     input_iter.collect()
 }
+
 
 /// Find the largest common string in a vector of strings
 pub fn find_common_string(strings: &[&str]) -> String {
